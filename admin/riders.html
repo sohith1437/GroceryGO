@@ -1,0 +1,640 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GroceryGo Admin - Delivery Fleet & Rider Operations</title>
+    <link rel="stylesheet" href="../style.css">
+    <link rel="stylesheet" href="../admin.css">
+</head>
+
+<body>
+
+<!-- ================= ADMIN NAVBAR ================= -->
+<header class="admin-navbar">
+    <div class="admin-navbar-inner">
+        <div class="admin-brand">
+            <div class="admin-logo">🛒 GroceryGo</div>
+            <span class="admin-badge">Admin Console</span>
+        </div>
+
+        <nav class="admin-nav-links">
+            <a href="dashboard.html" class="admin-nav-item">📊 Dashboard</a>
+            <a href="products.html" class="admin-nav-item">🍎 Products</a>
+            <a href="categories.html" class="admin-nav-item">🗂️ Categories</a>
+            <a href="inventory.html" class="admin-nav-item">📦 Inventory</a>
+            <a href="orders.html" class="admin-nav-item">🛍️ Orders</a>
+            <a href="riders.html" class="admin-nav-item active">🛵 Riders</a>
+            <a href="users.html" class="admin-nav-item">👥 Users</a>
+            <a href="offers.html" class="admin-nav-item">🏷️ Offers</a>
+            <a href="reports.html" class="admin-nav-item">📈 Reports</a>
+        </nav>
+
+        <div class="admin-nav-actions">
+            <div class="admin-profile-pill">
+                <span>🛡️</span>
+                <span id="adminProfileName">Admin</span>
+            </div>
+            <button class="admin-logout-btn" onclick="logout()">Logout</button>
+        </div>
+    </div>
+</header>
+
+<main class="admin-main">
+
+    <div class="admin-page-header">
+        <div>
+            <h1>🛵 Delivery Fleet & Rider Management</h1>
+            <p>Register new delivery partners, manage vehicle compliance, monitor real-time availability, and dispatch orders.</p>
+        </div>
+
+        <button class="header-action-btn" onclick="openRegisterRiderModal()">
+            + Register New Rider
+        </button>
+    </div>
+
+    <!-- RIDER SUMMARY CARDS (Section 28) -->
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="stat-top">
+                <div class="stat-icon icon-blue">🛵</div>
+                <span class="pill pill-blue">Fleet</span>
+            </div>
+            <div class="stat-val" id="statTotalRiders">0</div>
+            <div class="stat-label">Total Registered Fleet</div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-top">
+                <div class="stat-icon icon-green">🟢</div>
+                <span class="pill pill-green">Ready</span>
+            </div>
+            <div class="stat-val" id="statAvailableRiders">0</div>
+            <div class="stat-label">Available for Dispatch</div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-top">
+                <div class="stat-icon icon-amber">⚡</div>
+                <span class="pill pill-amber">In Transit</span>
+            </div>
+            <div class="stat-val" id="statBusyRiders">0</div>
+            <div class="stat-label">Busy with Active Delivery</div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-top">
+                <div class="stat-icon icon-purple">💤</div>
+                <span class="pill pill-gray">Offline</span>
+            </div>
+            <div class="stat-val" id="statOfflineRiders">0</div>
+            <div class="stat-label">Off-Duty / Offline</div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-top">
+                <div class="stat-icon icon-red">⛔</div>
+                <span class="pill pill-red">Suspended</span>
+            </div>
+            <div class="stat-val" id="statSuspendedRiders">0</div>
+            <div class="stat-label">Suspended Accounts</div>
+        </div>
+    </div>
+
+    <!-- RIDERS TABLE CARD -->
+    <div class="admin-card">
+        <div class="card-title-bar">
+            <h2>Delivery Fleet Roster</h2>
+
+            <div class="search-filter-bar">
+                <input type="text" id="riderSearchInput" class="admin-search-input" placeholder="Search by name, ID, phone, or vehicle...">
+                <select id="riderStatusFilter" class="admin-select">
+                    <option value="All">All Statuses</option>
+                    <option value="Available">Available</option>
+                    <option value="Busy">Busy</option>
+                    <option value="Offline">Offline</option>
+                    <option value="Suspended">Suspended</option>
+                </select>
+                <select id="riderVehicleFilter" class="admin-select">
+                    <option value="All">All Vehicle Types</option>
+                    <option value="Bike">Bike</option>
+                    <option value="Scooter">Scooter</option>
+                    <option value="Bicycle">Bicycle</option>
+                    <option value="Other">Other</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="table-responsive">
+            <table class="admin-table">
+                <thead>
+                    <tr>
+                        <th>Rider ID</th>
+                        <th>Delivery Partner</th>
+                        <th>Phone & Email</th>
+                        <th>Vehicle & License</th>
+                        <th>Status</th>
+                        <th>Deliveries</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="ridersTableBody">
+                    <!-- Populated dynamically -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+</main>
+
+<!-- RIDER REGISTRATION & EDIT MODAL (Section 26 & 29) -->
+<div id="riderModal" class="modal-overlay" onclick="closeRiderModal(event)">
+    <div class="modal-container" style="max-width:700px;" onclick="event.stopPropagation()">
+        <div class="modal-header-bar">
+            <h3 id="riderModalTitle">Register Delivery Partner</h3>
+            <button class="modal-close-btn" onclick="closeRiderModal()">✕</button>
+        </div>
+
+        <form id="riderForm">
+            <div class="modal-body-content">
+                <input type="hidden" id="editRiderId">
+
+                <div class="modal-form-grid">
+                    <div class="modal-form-group">
+                        <label for="riderIdInput">Rider ID *</label>
+                        <input type="text" id="riderIdInput" required placeholder="e.g. R004">
+                    </div>
+
+                    <div class="modal-form-group">
+                        <label for="riderName">Full Legal Name *</label>
+                        <input type="text" id="riderName" required placeholder="e.g. Ramesh Reddy">
+                    </div>
+
+                    <div class="modal-form-group">
+                        <label for="riderPhone">Phone Number *</label>
+                        <input type="tel" id="riderPhone" required placeholder="10-digit number" pattern="[0-9]{10}">
+                    </div>
+
+                    <div class="modal-form-group">
+                        <label for="riderEmail">Email Address *</label>
+                        <input type="email" id="riderEmail" required placeholder="e.g. ramesh@grocerygo.com">
+                    </div>
+
+                    <div class="modal-form-group">
+                        <label for="riderDob">Date of Birth</label>
+                        <input type="date" id="riderDob" value="2000-01-01">
+                    </div>
+
+                    <div class="modal-form-group">
+                        <label for="riderGender">Gender</label>
+                        <select id="riderGender">
+                            <option value="Male">Male</option>
+                            <option value="Female">Female</option>
+                            <option value="Other">Other</option>
+                        </select>
+                    </div>
+
+                    <div class="modal-form-group full-width">
+                        <label for="riderAddress">Residential Address *</label>
+                        <input type="text" id="riderAddress" required placeholder="Street address / area">
+                    </div>
+
+                    <div class="modal-form-group">
+                        <label for="riderCity">City *</label>
+                        <input type="text" id="riderCity" required value="Vijayawada">
+                    </div>
+
+                    <div class="modal-form-group">
+                        <label for="riderPincode">Pincode *</label>
+                        <input type="text" id="riderPincode" required placeholder="6-digit pincode" pattern="[0-9]{6}">
+                    </div>
+
+                    <div class="modal-form-group">
+                        <label for="riderEmergencyName">Emergency Contact Person</label>
+                        <input type="text" id="riderEmergencyName" placeholder="e.g. Family member name">
+                    </div>
+
+                    <div class="modal-form-group">
+                        <label for="riderEmergencyPhone">Emergency Phone Number</label>
+                        <input type="tel" id="riderEmergencyPhone" placeholder="10-digit number">
+                    </div>
+
+                    <div class="modal-form-group">
+                        <label for="riderVehicleType">Vehicle Type *</label>
+                        <select id="riderVehicleType" required>
+                            <option value="Bike">Motorcycle / Bike</option>
+                            <option value="Scooter">Scooter / Moped</option>
+                            <option value="Bicycle">Bicycle</option>
+                            <option value="Other">Other</option>
+                        </select>
+                    </div>
+
+                    <div class="modal-form-group">
+                        <label for="riderVehicleNumber">Vehicle Registration Number *</label>
+                        <input type="text" id="riderVehicleNumber" required placeholder="e.g. AP16AB1234">
+                    </div>
+
+                    <div class="modal-form-group">
+                        <label for="riderLicense">Driving License Number *</label>
+                        <input type="text" id="riderLicense" required placeholder="e.g. DL123456789">
+                    </div>
+
+                    <div class="modal-form-group">
+                        <label for="riderStatusSelect">Operational Status *</label>
+                        <select id="riderStatusSelect" required>
+                            <option value="Available">Available (Ready for assignment)</option>
+                            <option value="Busy">Busy (On active delivery)</option>
+                            <option value="Offline">Offline (Shift ended)</option>
+                            <option value="Suspended">Suspended (Blocked)</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal-footer-bar">
+                <button type="button" class="modal-cancel-btn" onclick="closeRiderModal()">Cancel</button>
+                <button type="submit" class="modal-submit-btn">Save Partner Profile</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- RIDER PROFILE & HISTORY MODAL -->
+<div id="riderProfileModal" class="modal-overlay" onclick="closeRiderProfileModal(event)">
+    <div class="modal-container" style="max-width:680px;" onclick="event.stopPropagation()">
+        <div class="modal-header-bar">
+            <h3 id="profileModalRiderTitle">Delivery Partner Profile</h3>
+            <button class="modal-close-btn" onclick="closeRiderProfileModal()">✕</button>
+        </div>
+
+        <div class="modal-body-content" id="profileModalContent">
+            <!-- Populated dynamically -->
+        </div>
+
+        <div class="modal-footer-bar">
+            <button type="button" class="modal-cancel-btn" onclick="closeRiderProfileModal()">Close</button>
+        </div>
+    </div>
+</div>
+
+<!-- SCRIPTS -->
+<script src="../store.js"></script>
+<script src="../auth.js"></script>
+
+<script>
+(function() {
+    // 1. Guard Page
+    const admin = window.GroceryAuth.protectPage("admin");
+    if (!admin) return;
+
+    document.getElementById("adminProfileName").textContent = admin.name || "Administrator";
+
+    const tableBody = document.getElementById("ridersTableBody");
+    const searchInput = document.getElementById("riderSearchInput");
+    const statusFilter = document.getElementById("riderStatusFilter");
+    const vehicleFilter = document.getElementById("riderVehicleFilter");
+
+    // Helper for pill classes
+    function getRiderStatusPill(status) {
+        switch(status) {
+            case "Available": return '<span class="pill pill-green">Available</span>';
+            case "Busy": return '<span class="pill pill-amber">Busy (On Delivery)</span>';
+            case "Offline": return '<span class="pill pill-gray">Offline</span>';
+            case "Suspended": return '<span class="pill pill-red">Suspended</span>';
+            default: return `<span class="pill pill-gray">${status}</span>`;
+        }
+    }
+
+    // 2. Render Riders Table
+    function renderRiders() {
+        const riders = window.GroceryStore.getRiders();
+        const orders = window.GroceryStore.getOrders();
+
+        // Update Stat Cards
+        document.getElementById("statTotalRiders").textContent = riders.length;
+        document.getElementById("statAvailableRiders").textContent = riders.filter(r => r.status === "Available").length;
+        document.getElementById("statBusyRiders").textContent = riders.filter(r => r.status === "Busy").length;
+        document.getElementById("statOfflineRiders").textContent = riders.filter(r => r.status === "Offline").length;
+        document.getElementById("statSuspendedRiders").textContent = riders.filter(r => r.status === "Suspended").length;
+
+        const query = searchInput.value.toLowerCase().trim();
+        const selStatus = statusFilter.value;
+        const selVehicle = vehicleFilter.value;
+
+        const filtered = riders.filter(r => {
+            const matchesQuery = r.id.toLowerCase().includes(query) ||
+                r.name.toLowerCase().includes(query) ||
+                r.phone.includes(query) ||
+                r.vehicleNumber.toLowerCase().includes(query);
+
+            const matchesStatus = (selStatus === "All") || (r.status === selStatus);
+            const matchesVehicle = (selVehicle === "All") || (r.vehicleType === selVehicle);
+
+            return matchesQuery && matchesStatus && matchesVehicle;
+        });
+
+        tableBody.innerHTML = "";
+
+        if (filtered.length === 0) {
+            tableBody.innerHTML = `<tr><td colspan="7" style="text-align:center;padding:30px;color:#888;">No delivery riders found matching the filter criteria.</td></tr>`;
+            return;
+        }
+
+        filtered.forEach(rider => {
+            const tr = document.createElement("tr");
+
+            // Count completed or assigned orders
+            const totalAssigned = (rider.assignedOrders || []).length;
+            const currentActiveOrder = orders.find(o => o.riderId === rider.id && !["Delivered", "Cancelled"].includes(o.status));
+
+            tr.innerHTML = `
+                <td><strong>#${rider.id}</strong></td>
+                <td>
+                    <div style="display:flex;align-items:center;gap:10px;">
+                        <span style="font-size:24px;">🛵</span>
+                        <div>
+                            <strong>${rider.name}</strong>
+                            <small style="display:block;color:#777;">Joined: ${rider.joiningDate || "2026"}</small>
+                        </div>
+                    </div>
+                </td>
+                <td>
+                    📞 ${rider.phone}<br>
+                    <small style="color:#777;">${rider.email}</small>
+                </td>
+                <td>
+                    <strong>${rider.vehicleType}</strong> (${rider.vehicleNumber})<br>
+                    <small style="color:#777;">DL: ${rider.drivingLicenseNumber}</small>
+                </td>
+                <td>${getRiderStatusPill(rider.status)}</td>
+                <td>
+                    <strong>${totalAssigned}</strong> completed<br>
+                    ${currentActiveOrder ? `<small style="color:#b45309;font-weight:700;">Live: #${currentActiveOrder.id}</small>` : '<small style="color:#148550;">Idle</small>'}
+                </td>
+                <td>
+                    <div class="action-btn-group">
+                        <button class="tbl-btn tbl-btn-view" onclick="viewRiderProfile('${rider.id}')">View</button>
+                        <button class="tbl-btn tbl-btn-edit" onclick="openEditRiderModal('${rider.id}')">Edit</button>
+                        <button class="tbl-btn tbl-btn-assign" onclick="quickCycleStatus('${rider.id}')">Status</button>
+                        <button class="tbl-btn tbl-btn-danger" onclick="deleteRider('${rider.id}')">Delete</button>
+                    </div>
+                </td>
+            `;
+
+            tableBody.appendChild(tr);
+        });
+    }
+
+    // 3. Status Cycle
+    window.quickCycleStatus = function(riderId) {
+        const riders = window.GroceryStore.getRiders();
+        const rider = riders.find(r => r.id === riderId);
+        if (!rider) return;
+
+        const statuses = ["Available", "Busy", "Offline", "Suspended"];
+        const nextIdx = (statuses.indexOf(rider.status) + 1) % statuses.length;
+        rider.status = statuses[nextIdx];
+
+        window.GroceryStore.saveRiders(riders);
+        renderRiders();
+    };
+
+    // 4. Modal Open/Close
+    window.openRegisterRiderModal = function() {
+        document.getElementById("riderModalTitle").textContent = "Register New Delivery Partner";
+        document.getElementById("editRiderId").value = "";
+
+        // Next default ID
+        const riders = window.GroceryStore.getRiders();
+        const nextNum = riders.length + 1;
+        document.getElementById("riderIdInput").value = "R" + String(nextNum).padStart(3, "0");
+        document.getElementById("riderIdInput").readOnly = false;
+
+        document.getElementById("riderName").value = "";
+        document.getElementById("riderPhone").value = "";
+        document.getElementById("riderEmail").value = "";
+        document.getElementById("riderAddress").value = "";
+        document.getElementById("riderCity").value = "Vijayawada";
+        document.getElementById("riderPincode").value = "520001";
+        document.getElementById("riderEmergencyName").value = "";
+        document.getElementById("riderEmergencyPhone").value = "";
+        document.getElementById("riderVehicleNumber").value = "";
+        document.getElementById("riderLicense").value = "";
+        document.getElementById("riderStatusSelect").value = "Available";
+
+        document.getElementById("riderModal").style.display = "flex";
+    };
+
+    window.openEditRiderModal = function(id) {
+        const rider = window.GroceryStore.getRiderById(id);
+        if (!rider) return;
+
+        document.getElementById("riderModalTitle").textContent = `Edit Partner Profile: ${rider.name}`;
+        document.getElementById("editRiderId").value = rider.id;
+        document.getElementById("riderIdInput").value = rider.id;
+        document.getElementById("riderIdInput").readOnly = true;
+
+        document.getElementById("riderName").value = rider.name;
+        document.getElementById("riderPhone").value = rider.phone;
+        document.getElementById("riderEmail").value = rider.email;
+        document.getElementById("riderDob").value = rider.dateOfBirth || "2000-01-01";
+        document.getElementById("riderGender").value = rider.gender || "Male";
+        document.getElementById("riderAddress").value = rider.address || "";
+        document.getElementById("riderCity").value = rider.city || "Vijayawada";
+        document.getElementById("riderPincode").value = rider.pincode || "520001";
+        document.getElementById("riderEmergencyName").value = rider.emergencyContactName || "";
+        document.getElementById("riderEmergencyPhone").value = rider.emergencyContactNumber || "";
+        document.getElementById("riderVehicleType").value = rider.vehicleType || "Bike";
+        document.getElementById("riderVehicleNumber").value = rider.vehicleNumber || "";
+        document.getElementById("riderLicense").value = rider.drivingLicenseNumber || "";
+        document.getElementById("riderStatusSelect").value = rider.status || "Available";
+
+        document.getElementById("riderModal").style.display = "flex";
+    };
+
+    window.closeRiderModal = function(e) {
+        if (e && e.target !== e.currentTarget && !e.target.classList.contains("modal-close-btn") && !e.target.classList.contains("modal-cancel-btn")) {
+            return;
+        }
+        document.getElementById("riderModal").style.display = "none";
+    };
+
+    // 5. Submit Form (with Validation Section 29)
+    document.getElementById("riderForm").addEventListener("submit", function(e) {
+        e.preventDefault();
+
+        const editId = document.getElementById("editRiderId").value;
+        const riderId = document.getElementById("riderIdInput").value.trim().toUpperCase();
+        const name = document.getElementById("riderName").value.trim();
+        const phone = document.getElementById("riderPhone").value.trim();
+        const email = document.getElementById("riderEmail").value.trim().toLowerCase();
+        const dateOfBirth = document.getElementById("riderDob").value;
+        const gender = document.getElementById("riderGender").value;
+        const address = document.getElementById("riderAddress").value.trim();
+        const city = document.getElementById("riderCity").value.trim();
+        const pincode = document.getElementById("riderPincode").value.trim();
+        const emergencyContactName = document.getElementById("riderEmergencyName").value.trim();
+        const emergencyContactNumber = document.getElementById("riderEmergencyPhone").value.trim();
+        const vehicleType = document.getElementById("riderVehicleType").value;
+        const vehicleNumber = document.getElementById("riderVehicleNumber").value.trim().toUpperCase();
+        const drivingLicenseNumber = document.getElementById("riderLicense").value.trim().toUpperCase();
+        const status = document.getElementById("riderStatusSelect").value;
+
+        const riders = window.GroceryStore.getRiders();
+
+        // Duplicate checks
+        if (!editId) {
+            if (riders.some(r => r.id === riderId)) {
+                alert(`Rider ID '${riderId}' already exists.`);
+                return;
+            }
+            if (riders.some(r => r.phone === phone)) {
+                alert(`Phone number '${phone}' is already registered with another rider.`);
+                return;
+            }
+            if (riders.some(r => r.vehicleNumber === vehicleNumber)) {
+                alert(`Vehicle Number '${vehicleNumber}' is already registered.`);
+                return;
+            }
+
+            riders.push({
+                id: riderId,
+                name,
+                phone,
+                email,
+                dateOfBirth,
+                gender,
+                address,
+                city,
+                pincode,
+                emergencyContactName,
+                emergencyContactNumber,
+                vehicleType,
+                vehicleNumber,
+                drivingLicenseNumber,
+                joiningDate: new Date().toISOString().split("T")[0],
+                status,
+                assignedOrders: []
+            });
+        } else {
+            const rider = riders.find(r => r.id === editId);
+            if (rider) {
+                // Check if new phone or vehicle conflicts with other riders
+                if (riders.some(r => r.id !== editId && r.phone === phone)) {
+                    alert(`Phone number '${phone}' belongs to another rider.`);
+                    return;
+                }
+                if (riders.some(r => r.id !== editId && r.vehicleNumber === vehicleNumber)) {
+                    alert(`Vehicle '${vehicleNumber}' belongs to another rider.`);
+                    return;
+                }
+
+                rider.name = name;
+                rider.phone = phone;
+                rider.email = email;
+                rider.dateOfBirth = dateOfBirth;
+                rider.gender = gender;
+                rider.address = address;
+                rider.city = city;
+                rider.pincode = pincode;
+                rider.emergencyContactName = emergencyContactName;
+                rider.emergencyContactNumber = emergencyContactNumber;
+                rider.vehicleType = vehicleType;
+                rider.vehicleNumber = vehicleNumber;
+                rider.drivingLicenseNumber = drivingLicenseNumber;
+                rider.status = status;
+            }
+        }
+
+        window.GroceryStore.saveRiders(riders);
+        closeRiderModal();
+        renderRiders();
+        alert(`Rider ${name} (${riderId}) profile saved successfully!`);
+    });
+
+    // 6. Delete Rider
+    window.deleteRider = function(id) {
+        if (confirm(`Are you sure you want to delete delivery partner #${id}?`)) {
+            let riders = window.GroceryStore.getRiders();
+            riders = riders.filter(r => r.id !== id);
+            window.GroceryStore.saveRiders(riders);
+            renderRiders();
+        }
+    };
+
+    // 7. View Rider Profile & Delivery History
+    window.viewRiderProfile = function(id) {
+        const rider = window.GroceryStore.getRiderById(id);
+        if (!rider) return;
+
+        document.getElementById("profileModalRiderTitle").textContent = `Partner Profile: ${rider.name} (#${rider.id})`;
+        const container = document.getElementById("profileModalContent");
+
+        const orders = window.GroceryStore.getOrders().filter(o => (rider.assignedOrders || []).includes(o.id) || o.riderId === rider.id);
+
+        container.innerHTML = `
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;background:#f7faf8;border-radius:10px;padding:16px;margin-bottom:18px;">
+                <div>
+                    <small style="color:#777;display:block;">Phone Number</small>
+                    <strong>📞 ${rider.phone}</strong>
+                </div>
+                <div>
+                    <small style="color:#777;display:block;">Current Status</small>
+                    ${getRiderStatusPill(rider.status)}
+                </div>
+                <div>
+                    <small style="color:#777;display:block;">Vehicle</small>
+                    <strong>${rider.vehicleType} - ${rider.vehicleNumber}</strong>
+                </div>
+                <div>
+                    <small style="color:#777;display:block;">Driving License</small>
+                    <strong>${rider.drivingLicenseNumber}</strong>
+                </div>
+                <div>
+                    <small style="color:#777;display:block;">City & Pincode</small>
+                    ${rider.city} - ${rider.pincode}
+                </div>
+                <div>
+                    <small style="color:#777;display:block;">Emergency Contact</small>
+                    ${rider.emergencyContactName || 'N/A'} (${rider.emergencyContactNumber || 'N/A'})
+                </div>
+            </div>
+
+            <h4 style="font-size:14px;margin-bottom:10px;color:#333;">Delivery History (${orders.length})</h4>
+            <div style="max-height:220px;overflow-y:auto;">
+                ${orders.length === 0 ? '<p style="color:#888;font-size:13px;">No past deliveries on record.</p>' : ''}
+                ${orders.map(o => `
+                    <div style="border:1px solid #eee;border-radius:8px;padding:10px 14px;margin-bottom:8px;display:flex;justify-content:space-between;align-items:center;font-size:13px;">
+                        <div>
+                            <strong>Order #${o.id}</strong><br>
+                            <small style="color:#777;">${o.customerName} • ${o.city} • ${o.orderDate}</small>
+                        </div>
+                        <div style="text-align:right;">
+                            <strong style="color:#19a463;">₹${o.total}</strong><br>
+                            <span class="pill ${o.status === 'Delivered' ? 'pill-green' : 'pill-amber'}">${o.status}</span>
+                        </div>
+                    </div>
+                `).join("")}
+            </div>
+        `;
+
+        document.getElementById("riderProfileModal").style.display = "flex";
+    };
+
+    window.closeRiderProfileModal = function(e) {
+        if (e && e.target !== e.currentTarget && !e.target.classList.contains("modal-close-btn") && !e.target.classList.contains("modal-cancel-btn")) {
+            return;
+        }
+        document.getElementById("riderProfileModal").style.display = "none";
+    };
+
+    searchInput.addEventListener("input", renderRiders);
+    statusFilter.addEventListener("change", renderRiders);
+    vehicleFilter.addEventListener("change", renderRiders);
+    renderRiders();
+})();
+</script>
+
+</body>
+</html>

@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>GroceryGo - Login</title>
+
+    <link rel="stylesheet" href="auth.css">
+
+</head>
+
+
+<body>
+
+
+<div class="auth-page">
+
+    <div class="auth-wrapper">
+
+
+        <!-- ================= LEFT ================= -->
+
+        <section class="auth-left">
+
+            <div class="auth-logo">
+                🛒 GroceryGo
+            </div>
+
+
+            <div class="auth-left-content">
+
+                <h2>
+                    Fresh groceries,
+                    right at your doorstep.
+                </h2>
+
+                <p>
+                    Shop fruits, vegetables, dairy,
+                    snacks and everyday essentials
+                    with GroceryGo.
+                </p>
+
+
+                <div class="auth-features">
+
+                    <div class="auth-feature">
+
+                        <div class="auth-feature-icon">
+                            ⚡
+                        </div>
+
+                        <div class="auth-feature-text">
+
+                            <strong>
+                                Fast Delivery
+                            </strong>
+
+                            <small>
+                                Get your groceries quickly
+                            </small>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="auth-feature">
+
+                        <div class="auth-feature-icon">
+                            🥬
+                        </div>
+
+                        <div class="auth-feature-text">
+
+                            <strong>
+                                Fresh Products
+                            </strong>
+
+                            <small>
+                                Quality products for your family
+                            </small>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="auth-feature">
+
+                        <div class="auth-feature-icon">
+                            💰
+                        </div>
+
+                        <div class="auth-feature-text">
+
+                            <strong>
+                                Great Prices
+                            </strong>
+
+                            <small>
+                                Affordable everyday essentials
+                            </small>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- ================= RIGHT ================= -->
+
+        <section class="auth-right">
+
+
+            <a
+                href="index.html"
+                class="back-home"
+            >
+                ← Back to GroceryGo
+            </a>
+
+
+            <div class="auth-title">
+
+                <h1>
+                    Welcome Back 👋
+                </h1>
+
+                <p>
+                    Login to continue shopping
+                </p>
+
+            </div>
+
+
+            <form
+                id="loginForm"
+                class="auth-form"
+            >
+
+
+                <!-- EMAIL -->
+
+                <div class="input-group">
+
+                    <label for="loginEmail">
+                        Email Address
+                    </label>
+
+                    <div class="input-wrapper">
+
+                        <span class="input-icon">
+                            ✉️
+                        </span>
+
+                        <input
+                            type="email"
+                            id="loginEmail"
+                            placeholder="Enter your email"
+                            required
+                        >
+
+                    </div>
+
+                </div>
+
+
+                <!-- PASSWORD -->
+
+                <div class="input-group">
+
+                    <label for="loginPassword">
+                        Password
+                    </label>
+
+                    <div class="input-wrapper">
+
+                        <span class="input-icon">
+                            🔒
+                        </span>
+
+                        <input
+                            type="password"
+                            id="loginPassword"
+                            placeholder="Enter your password"
+                            required
+                        >
+
+                    </div>
+
+                </div>
+
+
+                <!-- REMEMBER -->
+
+                <div class="remember-row">
+
+                    <label class="remember">
+
+                        <input
+                            type="checkbox"
+                            id="rememberMe"
+                        >
+
+                        Remember Me
+
+                    </label>
+
+                </div>
+
+
+                <!-- LOGIN -->
+
+                <button
+                    type="submit"
+                    class="auth-btn"
+                >
+                    Login to GroceryGo
+                </button>
+
+
+                <p
+                    id="loginMessage"
+                    class="message"
+                ></p>
+
+
+            </form>
+
+
+            <div class="auth-divider">
+
+                <span></span>
+
+                <p>
+                    New to GroceryGo?
+                </p>
+
+                <span></span>
+
+            </div>
+
+
+            <p class="auth-switch">
+
+                Don't have an account?
+
+                <a href="register.html">
+                    Create Account
+                </a>
+
+            </p>
+
+
+        </section>
+
+    </div>
+
+</div>
+
+
+<script src="store.js"></script>
+<script src="auth.js"></script>
+<script>
+    // Redirect if already logged in
+    (function() {
+        const user = window.GroceryAuth?.getCurrentUser();
+        if (user) {
+            window.GroceryAuth.redirectByRole(user);
+        }
+    })();
+</script>
+
+</body>
+
+</html>

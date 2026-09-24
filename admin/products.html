@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GroceryGo Admin - Product Management</title>
+    <link rel="stylesheet" href="../style.css">
+    <link rel="stylesheet" href="../admin.css">
+</head>
+
+<body>
+
+<!-- ================= ADMIN NAVBAR ================= -->
+<header class="admin-navbar">
+    <div class="admin-navbar-inner">
+        <div class="admin-brand">
+            <div class="admin-logo">🛒 GroceryGo</div>
+            <span class="admin-badge">Admin Console</span>
+        </div>
+
+        <nav class="admin-nav-links">
+            <a href="dashboard.html" class="admin-nav-item">📊 Dashboard</a>
+            <a href="products.html" class="admin-nav-item active">🍎 Products</a>
+            <a href="categories.html" class="admin-nav-item">🗂️ Categories</a>
+            <a href="inventory.html" class="admin-nav-item">📦 Inventory</a>
+            <a href="orders.html" class="admin-nav-item">🛍️ Orders</a>
+            <a href="riders.html" class="admin-nav-item">🛵 Riders</a>
+            <a href="users.html" class="admin-nav-item">👥 Users</a>
+            <a href="offers.html" class="admin-nav-item">🏷️ Offers</a>
+            <a href="reports.html" class="admin-nav-item">📈 Reports</a>
+        </nav>
+
+        <div class="admin-nav-actions">
+            <div class="admin-profile-pill">
+                <span>🛡️</span>
+                <span id="adminProfileName">Admin</span>
+            </div>
+            <button class="admin-logout-btn" onclick="logout()">Logout</button>
+        </div>
+    </div>
+</header>
+
+<main class="admin-main">
+
+    <div class="admin-page-header">
+        <div>
+            <h1>🍎 Product Catalog Management</h1>
+            <p>Add new products, adjust pricing, update stock levels, and toggle customer availability.</p>
+        </div>
+
+        <button class="header-action-btn" onclick="openAddProductModal()">
+            + Add New Product
+        </button>
+    </div>
+
+    <!-- PRODUCTS TABLE CARD -->
+    <div class="admin-card">
+        <div class="card-title-bar">
+            <h2>Product Catalog (<span id="totalProductCount">0</span>)</h2>
+
+            <div class="search-filter-bar">
+                <input type="text" id="adminSearchInput" class="admin-search-input" placeholder="Search by product name...">
+                <select id="categoryFilterSelect" class="admin-select">
+                    <option value="All">All Categories</option>
+                </select>
+                <select id="stockFilterSelect" class="admin-select">
+                    <option value="All">All Stock Levels</option>
+                    <option value="InStock">In Stock (>10)</option>
+                    <option value="LowStock">Low Stock (1-10)</option>
+                    <option value="OutOfStock">Out of Stock (0)</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="table-responsive">
+            <table class="admin-table">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Product</th>
+                        <th>Category</th>
+                        <th>Price</th>
+                        <th>Unit</th>
+                        <th>Stock</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="productsTableBody">
+                    <!-- Populated dynamically -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+</main>
+
+<!-- ADD / EDIT PRODUCT MODAL -->
+<div id="productModal" class="modal-overlay" onclick="closeProductModal(event)">
+    <div class="modal-container" onclick="event.stopPropagation()">
+        <div class="modal-header-bar">
+            <h3 id="modalTitle">Add New Product</h3>
+            <button class="modal-close-btn" onclick="closeProductModal()">✕</button>
+        </div>
+
+        <form id="productForm">
+            <div class="modal-body-content">
+                <input type="hidden" id="editProductId">
+
+                <div class="modal-form-grid">
+                    <div class="modal-form-group">
+                        <label for="prodName">Product Name *</label>
+                        <input type="text" id="prodName" required placeholder="e.g. Kashmiri Apples">
+                    </div>
+
+                    <div class="modal-form-group">
+                        <label for="prodIcon">Emoji / Icon *</label>
+                        <input type="text" id="prodIcon" required placeholder="e.g. 🍎 or 🥦" maxlength="4">
+                    </div>
+
+                    <div class="modal-form-group">
+                        <label for="prodCategory">Category *</label>
+                        <select id="prodCategory" required>
+                            <!-- Populated dynamically -->
+                        </select>
+                    </div>
+
+                    <div class="modal-form-group">
+                        <label for="prodPrice">Price (₹) *</label>
+                        <input type="number" id="prodPrice" required min="1" step="1" placeholder="e.g. 120">
+                    </div>
+
+                    <div class="modal-form-group">
+                        <label for="prodUnit">Unit Measure *</label>
+                        <input type="text" id="prodUnit" required placeholder="e.g. 1 kg, 500 g, 1 pack">
+                    </div>
+
+                    <div class="modal-form-group">
+                        <label for="prodStock">Stock Quantity *</label>
+                        <input type="number" id="prodStock" required min="0" step="1" placeholder="e.g. 50">
+                    </div>
+
+                    <div class="modal-form-group full-width">
+                        <label for="prodDesc">Product Description</label>
+                        <textarea id="prodDesc" rows="3" placeholder="Write quality highlights, farm origin, or freshness guarantees..."></textarea>
+                    </div>
+
+                    <div class="modal-form-group full-width">
+                        <label style="display:flex;align-items:center;gap:8px;cursor:pointer;">
+                            <input type="checkbox" id="prodAvailable" checked style="width:18px;height:18px;accent-color:#19a463;">
+                            <span>Active & Visible to Customers on Homepage and Shop</span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal-footer-bar">
+                <button type="button" class="modal-cancel-btn" onclick="closeProductModal()">Cancel</button>
+                <button type="submit" class="modal-submit-btn" id="modalSaveBtn">Save Product</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- SCRIPTS -->
+<script src="../store.js"></script>
+<script src="../auth.js"></script>
+
+<script>
+(function() {
+    // 1. Guard Page
+    const admin = window.GroceryAuth.protectPage("admin");
+    if (!admin) return;
+
+    document.getElementById("adminProfileName").textContent = admin.name || "Administrator";
+
+    const searchInput = document.getElementById("adminSearchInput");
+    const categoryFilterSelect = document.getElementById("categoryFilterSelect");
+    const stockFilterSelect = document.getElementById("stockFilterSelect");
+    const tableBody = document.getElementById("productsTableBody");
+    const totalProductCount = document.getElementById("totalProductCount");
+
+    // 2. Populate Category Select Options
+    function loadCategoriesDropdown() {
+        const categories = window.GroceryStore.getCategories();
+        const prodCatSelect = document.getElementById("prodCategory");
+
+        // Filter Dropdown
+        categoryFilterSelect.innerHTML = `<option value="All">All Categories</option>`;
+        categories.forEach(cat => {
+            categoryFilterSelect.innerHTML += `<option value="${cat.name}">${cat.icon} ${cat.name}</option>`;
+        });
+
+        // Modal Form Dropdown
+        prodCatSelect.innerHTML = "";
+        categories.forEach(cat => {
+            prodCatSelect.innerHTML += `<option value="${cat.name}">${cat.icon} ${cat.name}</option>`;
+        });
+    }
+
+    // 3. Render Products Table
+    function renderProducts() {
+        const allProducts = window.GroceryStore.getProducts();
+        totalProductCount.textContent = allProducts.length;
+
+        const keyword = searchInput.value.toLowerCase().trim();
+        const selectedCat = categoryFilterSelect.value;
+        const selectedStock = stockFilterSelect.value;
+
+        const filtered = allProducts.filter(p => {
+            const matchesText = p.name.toLowerCase().includes(keyword) || p.category.toLowerCase().includes(keyword);
+            const matchesCat = (selectedCat === "All") || (p.category.toLowerCase() === selectedCat.toLowerCase());
+
+            let matchesStock = true;
+            if (selectedStock === "InStock") matchesStock = p.stock > 10;
+            else if (selectedStock === "LowStock") matchesStock = p.stock > 0 && p.stock <= 10;
+            else if (selectedStock === "OutOfStock") matchesStock = p.stock <= 0;
+
+            return matchesText && matchesCat && matchesStock;
+        });
+
+        tableBody.innerHTML = "";
+
+        if (filtered.length === 0) {
+            tableBody.innerHTML = `<tr><td colspan="8" style="text-align:center;padding:30px;color:#888;">No products matched the filter criteria.</td></tr>`;
+            return;
+        }
+
+        filtered.forEach(p => {
+            const tr = document.createElement("tr");
+
+            let stockPill = '<span class="pill pill-green">In Stock</span>';
+            if (p.stock <= 0) stockPill = '<span class="pill pill-red">Out of Stock</span>';
+            else if (p.stock <= 10) stockPill = '<span class="pill pill-amber">Low Stock</span>';
+
+            const availabilityPill = p.available
+                ? '<span class="pill pill-green" title="Active on shop">Active</span>'
+                : '<span class="pill pill-gray" title="Hidden from shop">Hidden</span>';
+
+            tr.innerHTML = `
+                <td><strong>#${p.id}</strong></td>
+                <td>
+                    <div style="display:flex;align-items:center;gap:10px;">
+                        <span style="font-size:24px;">${p.icon}</span>
+                        <div>
+                            <strong>${p.name}</strong>
+                            <small style="display:block;color:#777;">${p.description ? p.description.substring(0, 35) + '...' : ''}</small>
+                        </div>
+                    </div>
+                </td>
+                <td>${p.category}</td>
+                <td><strong style="color:#19a463;">₹${p.price}</strong></td>
+                <td>${p.unit}</td>
+                <td><strong>${p.stock}</strong> ${stockPill}</td>
+                <td>${availabilityPill}</td>
+                <td>
+                    <div class="action-btn-group">
+                        <button class="tbl-btn tbl-btn-edit" onclick="openEditProductModal(${p.id})">✏️ Edit</button>
+                        <button class="tbl-btn ${p.available ? 'tbl-btn-danger' : 'tbl-btn-assign'}" onclick="toggleProductAvailability(${p.id})">
+                            ${p.available ? 'Disable' : 'Enable'}
+                        </button>
+                        <button class="tbl-btn tbl-btn-danger" onclick="deleteProduct(${p.id})">🗑️</button>
+                    </div>
+                </td>
+            `;
+
+            tableBody.appendChild(tr);
+        });
+    }
+
+    // 4. Modal Handlers
+    window.openAddProductModal = function() {
+        document.getElementById("modalTitle").textContent = "Add New Product";
+        document.getElementById("editProductId").value = "";
+        document.getElementById("prodName").value = "";
+        document.getElementById("prodIcon").value = "🍎";
+        document.getElementById("prodPrice").value = "";
+        document.getElementById("prodUnit").value = "1 kg";
+        document.getElementById("prodStock").value = "50";
+        document.getElementById("prodDesc").value = "";
+        document.getElementById("prodAvailable").checked = true;
+        document.getElementById("productModal").style.display = "flex";
+    };
+
+    window.openEditProductModal = function(id) {
+        const product = window.GroceryStore.getProductById(id);
+        if (!product) return;
+
+        document.getElementById("modalTitle").textContent = `Edit Product #${product.id}`;
+        document.getElementById("editProductId").value = product.id;
+        document.getElementById("prodName").value = product.name;
+        document.getElementById("prodIcon").value = product.icon;
+        document.getElementById("prodCategory").value = product.category;
+        document.getElementById("prodPrice").value = product.price;
+        document.getElementById("prodUnit").value = product.unit;
+        document.getElementById("prodStock").value = product.stock;
+        document.getElementById("prodDesc").value = product.description || "";
+        document.getElementById("prodAvailable").checked = product.available !== false;
+        document.getElementById("productModal").style.display = "flex";
+    };
+
+    window.closeProductModal = function(e) {
+        if (e && e.target !== e.currentTarget && !e.target.classList.contains("modal-close-btn") && !e.target.classList.contains("modal-cancel-btn")) {
+            return;
+        }
+        document.getElementById("productModal").style.display = "none";
+    };
+
+    // 5. Submit Add/Edit Form
+    document.getElementById("productForm").addEventListener("submit", function(e) {
+        e.preventDefault();
+
+        const editId = document.getElementById("editProductId").value;
+        const name = document.getElementById("prodName").value.trim();
+        const icon = document.getElementById("prodIcon").value.trim();
+        const category = document.getElementById("prodCategory").value;
+        const price = Number(document.getElementById("prodPrice").value);
+        const unit = document.getElementById("prodUnit").value.trim();
+        const stock = Number(document.getElementById("prodStock").value);
+        const description = document.getElementById("prodDesc").value.trim();
+        const available = document.getElementById("prodAvailable").checked;
+
+        const products = window.GroceryStore.getProducts();
+
+        if (editId) {
+            // Edit existing
+            const p = products.find(prod => prod.id === Number(editId));
+            if (p) {
+                p.name = name;
+                p.icon = icon;
+                p.category = category;
+                p.price = price;
+                p.unit = unit;
+                p.stock = stock;
+                p.description = description;
+                p.available = available;
+            }
+        } else {
+            // Add new
+            const newId = products.length > 0 ? Math.max(...products.map(p => p.id)) + 1 : 1;
+            products.push({
+                id: newId,
+                name,
+                icon,
+                category,
+                price,
+                unit,
+                stock,
+                description,
+                available
+            });
+        }
+
+        window.GroceryStore.saveProducts(products);
+        closeProductModal();
+        renderProducts();
+        alert(`Product ${editId ? 'updated' : 'created'} successfully! Changes are instantly live.`);
+    });
+
+    // 6. Toggle Availability
+    window.toggleProductAvailability = function(id) {
+        const products = window.GroceryStore.getProducts();
+        const product = products.find(p => p.id === id);
+        if (product) {
+            product.available = !product.available;
+            window.GroceryStore.saveProducts(products);
+            renderProducts();
+        }
+    };
+
+    // 7. Delete Product
+    window.deleteProduct = function(id) {
+        if (confirm(`Are you sure you want to delete product #${id}?`)) {
+            let products = window.GroceryStore.getProducts();
+            products = products.filter(p => p.id !== id);
+            window.GroceryStore.saveProducts(products);
+            renderProducts();
+        }
+    };
+
+    // Event listeners for filters
+    searchInput.addEventListener("input", renderProducts);
+    categoryFilterSelect.addEventListener("change", renderProducts);
+    stockFilterSelect.addEventListener("change", renderProducts);
+
+    // Initial load
+    loadCategoriesDropdown();
+    renderProducts();
+})();
+</script>
+
+</body>
+</html>

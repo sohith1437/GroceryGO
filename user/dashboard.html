@@ -1,0 +1,653 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GroceryGo - Shop Fresh Groceries</title>
+    <link rel="stylesheet" href="../style.css">
+
+    <style>
+        .user-page {
+            padding: 34px 7%;
+            min-height: 80vh;
+        }
+
+        .user-welcome {
+            display: flex;
+            justify-content: space-between;
+            gap: 20px;
+            align-items: flex-end;
+            margin-bottom: 24px;
+        }
+
+        .user-welcome h1 {
+            font-size: 32px;
+            margin-bottom: 5px;
+            color: #1a2a1e;
+        }
+
+        .user-welcome p {
+            color: #666;
+            font-size: 15px;
+        }
+
+        .user-tools {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .user-tool-link {
+            padding: 10px 16px;
+            border-radius: 8px;
+            background: #fff;
+            border: 1px solid #dce5df;
+            color: #2c3e32;
+            font-weight: 600;
+            font-size: 14px;
+            transition: all 0.2s;
+        }
+
+        .user-tool-link:hover {
+            border-color: #19a463;
+            color: #19a463;
+            box-shadow: 0 4px 12px rgba(25, 164, 99, 0.12);
+        }
+
+        .filter-row {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin: 20px 0 28px;
+        }
+
+        .category-filter {
+            border: 1px solid #dfe7e1;
+            background: #fff;
+            color: #444;
+            border-radius: 999px;
+            padding: 9px 18px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 14px;
+            transition: all 0.2s;
+        }
+
+        .category-filter.active,
+        .category-filter:hover {
+            background: #19a463;
+            color: #fff;
+            border-color: #19a463;
+            box-shadow: 0 4px 12px rgba(25, 164, 99, 0.2);
+        }
+
+        .results-line {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .results-line h2 {
+            font-size: 22px;
+            color: #222;
+        }
+
+        .results-line p {
+            color: #777;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .product-card {
+            background: #fff;
+            border: 1px solid #eef2ef;
+            border-radius: 12px;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            transition: transform 0.2s, box-shadow 0.2s;
+            position: relative;
+        }
+
+        .product-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
+            border-color: #d6e8dc;
+        }
+
+        .product-image {
+            height: 160px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #f4faf6;
+            font-size: 75px;
+            cursor: pointer;
+            position: relative;
+        }
+
+        .stock-tag {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            padding: 4px 8px;
+            border-radius: 6px;
+            font-size: 11px;
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+
+        .stock-tag.in-stock {
+            background: #e6f6ed;
+            color: #148550;
+        }
+
+        .stock-tag.low-stock {
+            background: #fef3e2;
+            color: #d97706;
+        }
+
+        .stock-tag.out-stock {
+            background: #fde8e8;
+            color: #e02424;
+        }
+
+        .product-info {
+            padding: 16px;
+            display: flex;
+            flex-direction: column;
+            flex: 1;
+        }
+
+        .product-info h3 {
+            font-size: 16px;
+            color: #222;
+            margin-bottom: 4px;
+            cursor: pointer;
+        }
+
+        .product-desc {
+            color: #777;
+            font-size: 12px;
+            line-height: 1.4;
+            margin-bottom: 12px;
+            flex: 1;
+        }
+
+        .product-category {
+            color: #888;
+            font-size: 12px;
+            margin-bottom: 6px;
+        }
+
+        .product-bottom {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: auto;
+            padding-top: 10px;
+            border-top: 1px solid #f2f5f3;
+        }
+
+        .product-price {
+            font-size: 18px;
+            font-weight: 700;
+            color: #19a463;
+        }
+
+        .add-btn {
+            border: none;
+            padding: 8px 16px;
+            border-radius: 8px;
+            background: #e9f8ef;
+            color: #148550;
+            font-weight: 700;
+            font-size: 13px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .add-btn:hover:not(:disabled) {
+            background: #19a463;
+            color: white;
+            box-shadow: 0 4px 10px rgba(25, 164, 99, 0.25);
+        }
+
+        .add-btn:disabled {
+            background: #f0f0f0;
+            color: #999;
+            cursor: not-allowed;
+        }
+
+        .no-products {
+            display: none;
+            text-align: center;
+            padding: 60px 20px;
+            color: #777;
+            background: #fff;
+            border: 1px solid #eef2ef;
+            border-radius: 14px;
+        }
+
+        /* Modal for Product Details */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 10000;
+            padding: 20px;
+        }
+
+        .modal-card {
+            background: white;
+            max-width: 480px;
+            width: 100%;
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.2);
+            animation: modalFadeIn 0.25s ease-out;
+        }
+
+        @keyframes modalFadeIn {
+            from { opacity: 0; transform: translateY(15px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .modal-header {
+            padding: 20px;
+            background: #f4faf6;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 80px;
+            position: relative;
+        }
+
+        .modal-close {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: rgba(0,0,0,0.1);
+            border: none;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            font-size: 16px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-body {
+            padding: 24px;
+        }
+
+        .modal-body h2 {
+            font-size: 22px;
+            margin-bottom: 6px;
+        }
+
+        .modal-body .meta {
+            color: #777;
+            font-size: 13px;
+            margin-bottom: 14px;
+        }
+
+        .modal-body .desc {
+            color: #555;
+            font-size: 14px;
+            line-height: 1.6;
+            margin-bottom: 20px;
+        }
+
+        .modal-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-top: 15px;
+            border-top: 1px solid #eee;
+        }
+
+        .toast {
+            position: fixed;
+            right: 24px;
+            bottom: 24px;
+            background: #17241b;
+            color: #fff;
+            padding: 13px 18px;
+            border-radius: 9px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.18);
+            opacity: 0;
+            transform: translateY(12px);
+            pointer-events: none;
+            transition: 0.25s;
+            z-index: 9999;
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        .toast.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        @media (max-width: 750px) {
+            .user-welcome {
+                align-items: flex-start;
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<!-- ================= NAVBAR ================= -->
+<header class="navbar">
+    <div class="logo">
+        🛒 <span>GroceryGo</span>
+    </div>
+
+    <div class="nav-actions">
+        <a href="dashboard.html" class="login-link" style="color:#19a463;font-weight:bold;">Shop</a>
+        <a href="orders.html" class="login-link">My Orders</a>
+        <a href="cart.html" class="cart-button">
+            🛒 Cart
+            <span id="cartCount">0</span>
+        </a>
+        <a href="profile.html" class="login-link">👤 Profile</a>
+        <button type="button" onclick="logout()" class="register-link" style="border:none;background:none;cursor:pointer;">
+            Logout
+        </button>
+    </div>
+</header>
+
+<main class="user-page">
+
+    <!-- WELCOME BANNER -->
+    <section class="user-welcome">
+        <div>
+            <h1 id="welcomeText">Welcome!</h1>
+            <p>Fresh groceries, fruits, vegetables, and everyday essentials delivered to your doorstep.</p>
+        </div>
+
+        <div class="user-tools">
+            <a class="user-tool-link" href="orders.html">📦 Track Orders</a>
+            <a class="user-tool-link" href="cart.html" style="background:#19a463;color:white;border-color:#19a463;">View Cart →</a>
+        </div>
+    </section>
+
+    <!-- SEARCH BAR -->
+    <div class="search-box" style="max-width:none;width:100%;margin-bottom:8px;">
+        <span>🔍</span>
+        <input type="text" id="searchInput" placeholder="Search by grocery name, category, or keyword...">
+    </div>
+
+    <!-- CATEGORY FILTER CHIPS -->
+    <div class="filter-row" id="categoryFilters">
+        <!-- Rendered dynamically -->
+    </div>
+
+    <!-- RESULTS HEADER -->
+    <div class="results-line">
+        <h2 id="sectionTitle">All Products</h2>
+        <p id="productCount">0 products available</p>
+    </div>
+
+    <!-- PRODUCT GRID -->
+    <div id="productContainer" class="product-grid">
+        <!-- Products inserted dynamically -->
+    </div>
+
+    <!-- EMPTY STATE -->
+    <div id="noProducts" class="no-products">
+        <div style="font-size:52px;margin-bottom:12px;">🔎</div>
+        <h3 style="font-size:20px;color:#333;margin-bottom:6px;">No products found</h3>
+        <p style="margin-bottom:16px;">We couldn't find anything matching your search or selected filter.</p>
+        <button onclick="resetFilters()" class="primary-btn" style="border:none;cursor:pointer;padding:10px 18px;">
+            Clear Search & Show All
+        </button>
+    </div>
+
+</main>
+
+<!-- PRODUCT DETAILS MODAL -->
+<div id="productModal" class="modal-overlay" onclick="closeModal(event)">
+    <div class="modal-card" onclick="event.stopPropagation()">
+        <div class="modal-header">
+            <span id="modalIcon">🍎</span>
+            <button class="modal-close" onclick="closeModal()">✕</button>
+        </div>
+        <div class="modal-body">
+            <h2 id="modalName">Product Name</h2>
+            <p class="meta" id="modalMeta">Category • Unit</p>
+            <p class="desc" id="modalDesc">Detailed description of the product.</p>
+            <div class="modal-footer">
+                <div>
+                    <span style="font-size:12px;color:#777;display:block;">Price</span>
+                    <strong id="modalPrice" style="font-size:22px;color:#19a463;">₹0</strong>
+                </div>
+                <button id="modalAddBtn" class="primary-btn" style="border:none;cursor:pointer;">
+                    Add to Cart
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- TOAST -->
+<div id="toast" class="toast"></div>
+
+<!-- SCRIPTS -->
+<script src="../store.js"></script>
+<script src="../auth.js"></script>
+
+<script>
+(function () {
+    // 1. Guard Page
+    const user = window.GroceryAuth.protectPage("user");
+    if (!user) return;
+
+    // 2. Personalize
+    document.getElementById("welcomeText").textContent = `Hello, ${user.name} 👋`;
+
+    let selectedCategory = "All";
+    let searchKeyword = "";
+
+    const container = document.getElementById("productContainer");
+    const noProducts = document.getElementById("noProducts");
+    const searchInput = document.getElementById("searchInput");
+    const productCount = document.getElementById("productCount");
+    const sectionTitle = document.getElementById("sectionTitle");
+    const categoryFiltersContainer = document.getElementById("categoryFilters");
+    const toast = document.getElementById("toast");
+
+    // 3. Render Category Filter Chips
+    function renderCategories() {
+        const categories = window.GroceryStore.getCategories().filter(c => c.active !== false);
+        categoryFiltersContainer.innerHTML = `
+            <button class="category-filter active" data-category="All">All Items</button>
+        `;
+
+        categories.forEach(cat => {
+            const btn = document.createElement("button");
+            btn.className = "category-filter";
+            btn.dataset.category = cat.name;
+            btn.textContent = `${cat.icon} ${cat.name}`;
+            categoryFiltersContainer.appendChild(btn);
+        });
+
+        // Add Click Handlers
+        categoryFiltersContainer.querySelectorAll(".category-filter").forEach(button => {
+            button.addEventListener("click", () => {
+                selectedCategory = button.dataset.category;
+                categoryFiltersContainer.querySelectorAll(".category-filter").forEach(b => b.classList.remove("active"));
+                button.classList.add("active");
+                sectionTitle.textContent = selectedCategory === "All" ? "All Products" : `${selectedCategory} Collection`;
+                applyFilters();
+            });
+        });
+    }
+
+    // 4. Update Cart Count in Navbar
+    function updateCartCount() {
+        const count = window.GroceryStore.getCartCount();
+        document.getElementById("cartCount").textContent = count;
+    }
+
+    // 5. Toast Notification
+    function showToast(message) {
+        toast.textContent = message;
+        toast.classList.add("show");
+        clearTimeout(window.__toastTimer);
+        window.__toastTimer = setTimeout(() => toast.classList.remove("show"), 1800);
+    }
+
+    // 6. Display Products
+    function displayProducts(list) {
+        container.innerHTML = "";
+        productCount.textContent = `${list.length} product${list.length === 1 ? "" : "s"} available`;
+
+        if (list.length === 0) {
+            noProducts.style.display = "block";
+            return;
+        }
+
+        noProducts.style.display = "none";
+
+        list.forEach(product => {
+            const card = document.createElement("div");
+            card.className = "product-card";
+
+            let stockTagClass = "in-stock";
+            let stockTagText = "In Stock";
+            let isOutOfStock = false;
+
+            if (product.stock <= 0 || !product.available) {
+                stockTagClass = "out-stock";
+                stockTagText = "Out of Stock";
+                isOutOfStock = true;
+            } else if (product.stock <= 10) {
+                stockTagClass = "low-stock";
+                stockTagText = `Only ${product.stock} left`;
+            }
+
+            card.innerHTML = `
+                <div class="product-image" onclick="window.openProductModal(${product.id})">
+                    <span class="stock-tag ${stockTagClass}">${stockTagText}</span>
+                    ${product.icon}
+                </div>
+                <div class="product-info">
+                    <h3 onclick="window.openProductModal(${product.id})">${product.name}</h3>
+                    <p class="product-category">${product.category} • ${product.unit}</p>
+                    <p class="product-desc">${product.description || ""}</p>
+                    <div class="product-bottom">
+                        <span class="product-price">₹${product.price}</span>
+                        <button class="add-btn" type="button" ${isOutOfStock ? "disabled" : ""} onclick="window.handleAddToCart(${product.id})">
+                            ${isOutOfStock ? "Unavailable" : "ADD +"}
+                        </button>
+                    </div>
+                </div>
+            `;
+
+            container.appendChild(card);
+        });
+    }
+
+    // 7. Filter Products
+    function applyFilters() {
+        const allProducts = window.GroceryStore.getProducts().filter(p => p.available !== false);
+
+        const filtered = allProducts.filter(product => {
+            const matchesCategory = (selectedCategory === "All") || (product.category.toLowerCase() === selectedCategory.toLowerCase());
+            const text = searchKeyword.toLowerCase();
+            const matchesSearch = !text ||
+                product.name.toLowerCase().includes(text) ||
+                product.category.toLowerCase().includes(text) ||
+                (product.description && product.description.toLowerCase().includes(text));
+
+            return matchesCategory && matchesSearch;
+        });
+
+        displayProducts(filtered);
+    }
+
+    // 8. Add to Cart Handler
+    window.handleAddToCart = function (productId) {
+        const res = window.GroceryStore.addToCart(productId, 1);
+        updateCartCount();
+        showToast(res.message);
+    };
+
+    // 9. Reset Filters
+    window.resetFilters = function () {
+        searchInput.value = "";
+        searchKeyword = "";
+        selectedCategory = "All";
+        sectionTitle.textContent = "All Products";
+        categoryFiltersContainer.querySelectorAll(".category-filter").forEach(b => {
+            b.classList.toggle("active", b.dataset.category === "All");
+        });
+        applyFilters();
+    };
+
+    // 10. Product Modal
+    window.openProductModal = function (productId) {
+        const product = window.GroceryStore.getProductById(productId);
+        if (!product) return;
+
+        document.getElementById("modalIcon").textContent = product.icon;
+        document.getElementById("modalName").textContent = product.name;
+        document.getElementById("modalMeta").textContent = `${product.category} • ${product.unit} (Stock: ${product.stock})`;
+        document.getElementById("modalDesc").textContent = product.description || "Fresh quality product guaranteed by GroceryGo.";
+        document.getElementById("modalPrice").textContent = `₹${product.price}`;
+
+        const addBtn = document.getElementById("modalAddBtn");
+        if (product.stock <= 0 || !product.available) {
+            addBtn.disabled = true;
+            addBtn.textContent = "Out of Stock";
+            addBtn.style.opacity = "0.5";
+            addBtn.style.cursor = "not-allowed";
+        } else {
+            addBtn.disabled = false;
+            addBtn.textContent = "Add to Cart";
+            addBtn.style.opacity = "1";
+            addBtn.style.cursor = "pointer";
+            addBtn.onclick = function () {
+                window.handleAddToCart(product.id);
+                closeModal();
+            };
+        }
+
+        document.getElementById("productModal").style.display = "flex";
+    };
+
+    window.closeModal = function () {
+        document.getElementById("productModal").style.display = "none";
+    };
+
+    // 11. Search Event Listener
+    searchInput.addEventListener("input", function () {
+        searchKeyword = searchInput.value.trim();
+        applyFilters();
+    });
+
+    // 12. Init
+    renderCategories();
+    updateCartCount();
+    applyFilters();
+})();
+</script>
+
+</body>
+</html>

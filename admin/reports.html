@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GroceryGo Admin - Business Intelligence & Reports</title>
+    <link rel="stylesheet" href="../style.css">
+    <link rel="stylesheet" href="../admin.css">
+</head>
+
+<body>
+
+<!-- ================= ADMIN NAVBAR ================= -->
+<header class="admin-navbar">
+    <div class="admin-navbar-inner">
+        <div class="admin-brand">
+            <div class="admin-logo">🛒 GroceryGo</div>
+            <span class="admin-badge">Admin Console</span>
+        </div>
+
+        <nav class="admin-nav-links">
+            <a href="dashboard.html" class="admin-nav-item">📊 Dashboard</a>
+            <a href="products.html" class="admin-nav-item">🍎 Products</a>
+            <a href="categories.html" class="admin-nav-item">🗂️ Categories</a>
+            <a href="inventory.html" class="admin-nav-item">📦 Inventory</a>
+            <a href="orders.html" class="admin-nav-item">🛍️ Orders</a>
+            <a href="riders.html" class="admin-nav-item">🛵 Riders</a>
+            <a href="users.html" class="admin-nav-item">👥 Users</a>
+            <a href="offers.html" class="admin-nav-item">🏷️ Offers</a>
+            <a href="reports.html" class="admin-nav-item active">📈 Reports</a>
+        </nav>
+
+        <div class="admin-nav-actions">
+            <div class="admin-profile-pill">
+                <span>🛡️</span>
+                <span id="adminProfileName">Admin</span>
+            </div>
+            <button class="admin-logout-btn" onclick="logout()">Logout</button>
+        </div>
+    </div>
+</header>
+
+<main class="admin-main">
+
+    <div class="admin-page-header">
+        <div>
+            <h1>📈 Business Analytics & Operations Reports</h1>
+            <p>Comprehensive reports computed dynamically from client-side order, rider, and catalog activity.</p>
+        </div>
+
+        <button class="header-action-btn" onclick="window.print()" style="background:#2c3e32;">
+            🖨️ Print / Export Summary
+        </button>
+    </div>
+
+    <!-- HIGH-LEVEL FINANCIAL KPI CARDS -->
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="stat-top">
+                <div class="stat-icon icon-green">💰</div>
+                <span class="pill pill-green">Gross Revenue</span>
+            </div>
+            <div class="stat-val" id="repTotalRevenue">₹0</div>
+            <div class="stat-label">Total Completed Revenue</div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-top">
+                <div class="stat-icon icon-blue">📦</div>
+                <span class="pill pill-blue">Orders</span>
+            </div>
+            <div class="stat-val" id="repTotalOrders">0</div>
+            <div class="stat-label">Orders Placed to Date</div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-top">
+                <div class="stat-icon icon-purple">🎯</div>
+                <span class="pill pill-purple">AOV</span>
+            </div>
+            <div class="stat-val" id="repAverageOrderVal">₹0</div>
+            <div class="stat-label">Average Order Basket Value</div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-top">
+                <div class="stat-icon icon-amber">🛵</div>
+                <span class="pill pill-amber">Deliveries</span>
+            </div>
+            <div class="stat-val" id="repDeliveredCount">0</div>
+            <div class="stat-label"><span id="repDeliveryRate">0%</span> Fulfillment Success</div>
+        </div>
+    </div>
+
+    <!-- TWO COLUMNS: TOP PRODUCTS & CATEGORY PERFORMANCE -->
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-bottom:26px;">
+        <!-- TOP PRODUCTS -->
+        <div class="admin-card" style="margin-bottom:0;">
+            <div class="card-title-bar">
+                <h2>Top-Selling Products (by Units Sold)</h2>
+            </div>
+
+            <div class="table-responsive">
+                <table class="admin-table">
+                    <thead>
+                        <tr>
+                            <th>Product</th>
+                            <th>Category</th>
+                            <th>Units Sold</th>
+                            <th>Gross Sales</th>
+                        </tr>
+                    </thead>
+                    <tbody id="topProductsTbody">
+                        <!-- Populated dynamically -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- CATEGORY SALES BREAKDOWN -->
+        <div class="admin-card" style="margin-bottom:0;">
+            <div class="card-title-bar">
+                <h2>Category Sales Breakdown</h2>
+            </div>
+
+            <div class="table-responsive">
+                <table class="admin-table">
+                    <thead>
+                        <tr>
+                            <th>Category</th>
+                            <th>Catalog Count</th>
+                            <th>Volume Sold</th>
+                            <th>Revenue Share</th>
+                        </tr>
+                    </thead>
+                    <tbody id="categoryStatsTbody">
+                        <!-- Populated dynamically -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- RIDER DELIVERY LEADERBOARD -->
+    <div class="admin-card">
+        <div class="card-title-bar">
+            <h2>Delivery Fleet Performance Leaderboard</h2>
+        </div>
+
+        <div class="table-responsive">
+            <table class="admin-table">
+                <thead>
+                    <tr>
+                        <th>Rider ID</th>
+                        <th>Delivery Partner</th>
+                        <th>Vehicle Details</th>
+                        <th>Completed Orders</th>
+                        <th>Operational Status</th>
+                    </tr>
+                </thead>
+                <tbody id="riderStatsTbody">
+                    <!-- Populated dynamically -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+</main>
+
+<!-- SCRIPTS -->
+<script src="../store.js"></script>
+<script src="../auth.js"></script>
+
+<script>
+(function() {
+    // 1. Guard Page
+    const admin = window.GroceryAuth.protectPage("admin");
+    if (!admin) return;
+
+    document.getElementById("adminProfileName").textContent = admin.name || "Administrator";
+
+    const orders = window.GroceryStore.getOrders();
+    const products = window.GroceryStore.getProducts();
+    const categories = window.GroceryStore.getCategories();
+    const riders = window.GroceryStore.getRiders();
+
+    // 2. High-level KPIs
+    const completedOrders = orders.filter(o => o.status === "Delivered");
+    const totalRev = completedOrders.reduce((sum, o) => sum + Number(o.total || 0), 0);
+    const avgOrderVal = completedOrders.length > 0 ? Math.round(totalRev / completedOrders.length) : 0;
+    const fulfillmentRate = orders.length > 0 ? Math.round((completedOrders.length / orders.length) * 100) : 0;
+
+    document.getElementById("repTotalRevenue").textContent = `₹${totalRev.toLocaleString()}`;
+    document.getElementById("repTotalOrders").textContent = orders.length;
+    document.getElementById("repAverageOrderVal").textContent = `₹${avgOrderVal}`;
+    document.getElementById("repDeliveredCount").textContent = completedOrders.length;
+    document.getElementById("repDeliveryRate").textContent = `${fulfillmentRate}%`;
+
+    // 3. Top-selling Products Calculation
+    const productSalesMap = {};
+    orders.forEach(order => {
+        if (order.status !== "Cancelled") {
+            (order.items || []).forEach(item => {
+                if (!productSalesMap[item.id]) {
+                    productSalesMap[item.id] = {
+                        name: item.name,
+                        icon: item.icon || "🛒",
+                        category: item.category || "General",
+                        units: 0,
+                        revenue: 0
+                    };
+                }
+                productSalesMap[item.id].units += Number(item.quantity || 1);
+                productSalesMap[item.id].revenue += (Number(item.price || 0) * Number(item.quantity || 1));
+            });
+        }
+    });
+
+    const topProductsTbody = document.getElementById("topProductsTbody");
+    const sortedProductList = Object.values(productSalesMap).sort((a, b) => b.units - a.units);
+
+    if (sortedProductList.length === 0) {
+        topProductsTbody.innerHTML = `<tr><td colspan="4" style="text-align:center;padding:24px;color:#888;">No product sales recorded yet.</td></tr>`;
+    } else {
+        topProductsTbody.innerHTML = "";
+        sortedProductList.slice(0, 6).forEach(p => {
+            const tr = document.createElement("tr");
+            tr.innerHTML = `
+                <td>${p.icon} <strong>${p.name}</strong></td>
+                <td>${p.category}</td>
+                <td><strong>${p.units}</strong></td>
+                <td><strong style="color:#19a463;">₹${p.revenue.toLocaleString()}</strong></td>
+            `;
+            topProductsTbody.appendChild(tr);
+        });
+    }
+
+    // 4. Category Performance
+    const categoryStatsTbody = document.getElementById("categoryStatsTbody");
+    categoryStatsTbody.innerHTML = "";
+
+    categories.forEach(cat => {
+        const catProds = products.filter(p => p.category.toLowerCase() === cat.name.toLowerCase());
+
+        let catUnits = 0;
+        let catRev = 0;
+        orders.forEach(ord => {
+            if (ord.status !== "Cancelled") {
+                ord.items.forEach(it => {
+                    if (it.category && it.category.toLowerCase() === cat.name.toLowerCase()) {
+                        catUnits += Number(it.quantity || 1);
+                        catRev += (Number(it.price || 0) * Number(it.quantity || 1));
+                    }
+                });
+            }
+        });
+
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+            <td>${cat.icon} <strong>${cat.name}</strong></td>
+            <td>${catProds.length} SKUs</td>
+            <td><strong>${catUnits}</strong> items</td>
+            <td><strong style="color:#19a463;">₹${catRev.toLocaleString()}</strong></td>
+        `;
+        categoryStatsTbody.appendChild(tr);
+    });
+
+    // 5. Rider Delivery Leaderboard
+    const riderStatsTbody = document.getElementById("riderStatsTbody");
+    riderStatsTbody.innerHTML = "";
+
+    const sortedRiders = riders.slice().sort((a, b) => (b.assignedOrders || []).length - (a.assignedOrders || []).length);
+
+    sortedRiders.forEach(r => {
+        const completedCount = (r.assignedOrders || []).length;
+        const tr = document.createElement("tr");
+
+        let statusPill = '<span class="pill pill-green">Available</span>';
+        if (r.status === "Busy") statusPill = '<span class="pill pill-amber">In Transit</span>';
+        else if (r.status === "Offline") statusPill = '<span class="pill pill-gray">Offline</span>';
+        else if (r.status === "Suspended") statusPill = '<span class="pill pill-red">Suspended</span>';
+
+        tr.innerHTML = `
+            <td><strong>#${r.id}</strong></td>
+            <td><strong>🛵 ${r.name}</strong><br><small style="color:#777;">📞 ${r.phone}</small></td>
+            <td>${r.vehicleType} • ${r.vehicleNumber}</td>
+            <td><strong style="color:#19a463;font-size:15px;">${completedCount}</strong> delivered</td>
+            <td>${statusPill}</td>
+        `;
+        riderStatsTbody.appendChild(tr);
+    });
+})();
+</script>
+
+</body>
+</html>

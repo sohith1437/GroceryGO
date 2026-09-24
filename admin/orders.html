@@ -1,0 +1,469 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GroceryGo Admin - Order Fulfillment</title>
+    <link rel="stylesheet" href="../style.css">
+    <link rel="stylesheet" href="../admin.css">
+</head>
+
+<body>
+
+<!-- ================= ADMIN NAVBAR ================= -->
+<header class="admin-navbar">
+    <div class="admin-navbar-inner">
+        <div class="admin-brand">
+            <div class="admin-logo">🛒 GroceryGo</div>
+            <span class="admin-badge">Admin Console</span>
+        </div>
+
+        <nav class="admin-nav-links">
+            <a href="dashboard.html" class="admin-nav-item">📊 Dashboard</a>
+            <a href="products.html" class="admin-nav-item">🍎 Products</a>
+            <a href="categories.html" class="admin-nav-item">🗂️ Categories</a>
+            <a href="inventory.html" class="admin-nav-item">📦 Inventory</a>
+            <a href="orders.html" class="admin-nav-item active">🛍️ Orders</a>
+            <a href="riders.html" class="admin-nav-item">🛵 Riders</a>
+            <a href="users.html" class="admin-nav-item">👥 Users</a>
+            <a href="offers.html" class="admin-nav-item">🏷️ Offers</a>
+            <a href="reports.html" class="admin-nav-item">📈 Reports</a>
+        </nav>
+
+        <div class="admin-nav-actions">
+            <div class="admin-profile-pill">
+                <span>🛡️</span>
+                <span id="adminProfileName">Admin</span>
+            </div>
+            <button class="admin-logout-btn" onclick="logout()">Logout</button>
+        </div>
+    </div>
+</header>
+
+<main class="admin-main">
+
+    <div class="admin-page-header">
+        <div>
+            <h1>🛍️ Customer Order Fulfillment</h1>
+            <p>Track, verify, pack, dispatch, and assign delivery partners across the order lifecycle.</p>
+        </div>
+    </div>
+
+    <!-- ORDER STATUS TABS & METRICS -->
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="stat-top">
+                <div class="stat-icon icon-blue">📦</div>
+                <span class="pill pill-blue">All</span>
+            </div>
+            <div class="stat-val" id="ordStatTotal">0</div>
+            <div class="stat-label">Total Customer Orders</div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-top">
+                <div class="stat-icon icon-amber">⏳</div>
+                <span class="pill pill-amber">Needs Action</span>
+            </div>
+            <div class="stat-val" id="ordStatPending">0</div>
+            <div class="stat-label">Placed / Confirmed / Packed</div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-top">
+                <div class="stat-icon icon-purple">🛵</div>
+                <span class="pill pill-purple">In Transit</span>
+            </div>
+            <div class="stat-val" id="ordStatTransit">0</div>
+            <div class="stat-label">Rider Dispatched</div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-top">
+                <div class="stat-icon icon-green">✅</div>
+                <span class="pill pill-green">Delivered</span>
+            </div>
+            <div class="stat-val" id="ordStatDelivered">0</div>
+            <div class="stat-label">Delivered Successfully</div>
+        </div>
+    </div>
+
+    <!-- ORDERS TABLE CARD -->
+    <div class="admin-card">
+        <div class="card-title-bar">
+            <h2>Order Records</h2>
+
+            <div class="search-filter-bar">
+                <input type="text" id="orderSearchInput" class="admin-search-input" placeholder="Search Order ID, name, or phone...">
+                <select id="orderStatusFilter" class="admin-select">
+                    <option value="All">All Statuses</option>
+                    <option value="Order Placed">Order Placed</option>
+                    <option value="Confirmed">Confirmed</option>
+                    <option value="Packed">Packed</option>
+                    <option value="Rider Assigned">Rider Assigned</option>
+                    <option value="Picked Up">Picked Up</option>
+                    <option value="Out for Delivery">Out for Delivery</option>
+                    <option value="Delivered">Delivered</option>
+                    <option value="Cancelled">Cancelled</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="table-responsive">
+            <table class="admin-table">
+                <thead>
+                    <tr>
+                        <th>Order ID</th>
+                        <th>Date & Time</th>
+                        <th>Customer Details</th>
+                        <th>Items</th>
+                        <th>Total Amount</th>
+                        <th>Status</th>
+                        <th>Rider Assigned</th>
+                        <th>Fulfillment Action</th>
+                    </tr>
+                </thead>
+                <tbody id="ordersTableBody">
+                    <!-- Populated dynamically -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+</main>
+
+<!-- ORDER DETAILS MODAL -->
+<div id="orderDetailsModal" class="modal-overlay" onclick="closeOrderDetailsModal(event)">
+    <div class="modal-container" style="max-width:700px;" onclick="event.stopPropagation()">
+        <div class="modal-header-bar">
+            <h3 id="detailsModalTitle">Order Details</h3>
+            <button class="modal-close-btn" onclick="closeOrderDetailsModal()">✕</button>
+        </div>
+
+        <div class="modal-body-content" id="detailsModalContent">
+            <!-- Populated dynamically -->
+        </div>
+
+        <div class="modal-footer-bar">
+            <button type="button" class="modal-cancel-btn" onclick="closeOrderDetailsModal()">Close</button>
+        </div>
+    </div>
+</div>
+
+<!-- ASSIGN RIDER MODAL (Section 30) -->
+<div id="assignRiderModal" class="modal-overlay" onclick="closeAssignRiderModal(event)">
+    <div class="modal-container" style="max-width:550px;" onclick="event.stopPropagation()">
+        <div class="modal-header-bar">
+            <h3>Assign Delivery Partner</h3>
+            <button class="modal-close-btn" onclick="closeAssignRiderModal()">✕</button>
+        </div>
+
+        <div class="modal-body-content">
+            <input type="hidden" id="assignTargetOrderId">
+            <p id="assignOrderMeta" style="font-size:14px;color:#555;margin-bottom:16px;"></p>
+
+            <h4 style="font-size:14px;margin-bottom:10px;color:#333;">Available Riders:</h4>
+            <div id="availableRidersList" style="display:flex;flex-direction:column;gap:10px;max-height:280px;overflow-y:auto;">
+                <!-- Populated dynamically -->
+            </div>
+        </div>
+
+        <div class="modal-footer-bar">
+            <button type="button" class="modal-cancel-btn" onclick="closeAssignRiderModal()">Cancel</button>
+        </div>
+    </div>
+</div>
+
+<!-- SCRIPTS -->
+<script src="../store.js"></script>
+<script src="../auth.js"></script>
+
+<script>
+(function() {
+    // 1. Guard Page
+    const admin = window.GroceryAuth.protectPage("admin");
+    if (!admin) return;
+
+    document.getElementById("adminProfileName").textContent = admin.name || "Administrator";
+
+    const tableBody = document.getElementById("ordersTableBody");
+    const searchInput = document.getElementById("orderSearchInput");
+    const statusFilter = document.getElementById("orderStatusFilter");
+
+    // Helper for pill classes
+    function getPill(status) {
+        switch(status) {
+            case "Delivered": return '<span class="pill pill-green">Delivered</span>';
+            case "Cancelled": return '<span class="pill pill-red">Cancelled</span>';
+            case "Order Placed": return '<span class="pill pill-blue">Order Placed</span>';
+            case "Confirmed": return '<span class="pill pill-purple">Confirmed</span>';
+            case "Packed": return '<span class="pill pill-amber">Packed</span>';
+            case "Rider Assigned": return '<span class="pill pill-purple">Rider Assigned</span>';
+            case "Picked Up": return '<span class="pill pill-blue">Picked Up</span>';
+            case "Out for Delivery": return '<span class="pill pill-amber">Out for Delivery</span>';
+            default: return `<span class="pill pill-gray">${status}</span>`;
+        }
+    }
+
+    // 2. Render Orders Table
+    function renderOrders() {
+        const allOrders = window.GroceryStore.getOrders();
+
+        document.getElementById("ordStatTotal").textContent = allOrders.length;
+        document.getElementById("ordStatPending").textContent = allOrders.filter(o => ["Order Placed", "Confirmed", "Packed"].includes(o.status)).length;
+        document.getElementById("ordStatTransit").textContent = allOrders.filter(o => ["Rider Assigned", "Picked Up", "Out for Delivery"].includes(o.status)).length;
+        document.getElementById("ordStatDelivered").textContent = allOrders.filter(o => o.status === "Delivered").length;
+
+        const query = searchInput.value.toLowerCase().trim();
+        const selectedStatus = statusFilter.value;
+
+        const filtered = allOrders.filter(o => {
+            const matchesQuery = o.id.toLowerCase().includes(query) ||
+                o.customerName.toLowerCase().includes(query) ||
+                o.phone.includes(query) ||
+                (o.city && o.city.toLowerCase().includes(query));
+
+            const matchesStatus = (selectedStatus === "All") || (o.status === selectedStatus);
+
+            return matchesQuery && matchesStatus;
+        });
+
+        tableBody.innerHTML = "";
+
+        if (filtered.length === 0) {
+            tableBody.innerHTML = `<tr><td colspan="8" style="text-align:center;padding:30px;color:#888;">No orders match the selected filters.</td></tr>`;
+            return;
+        }
+
+        // Newest first
+        filtered.slice().reverse().forEach(order => {
+            const tr = document.createElement("tr");
+
+            // Action button based on order state
+            let actionBtnHTML = "";
+            if (order.status === "Order Placed") {
+                actionBtnHTML = `
+                    <button class="tbl-btn tbl-btn-assign" onclick="advanceOrderStatus('${order.id}', 'Confirmed')">Confirm Order</button>
+                    <button class="tbl-btn tbl-btn-danger" onclick="cancelOrderAdmin('${order.id}')">Cancel</button>
+                `;
+            } else if (order.status === "Confirmed") {
+                actionBtnHTML = `
+                    <button class="tbl-btn tbl-btn-assign" onclick="advanceOrderStatus('${order.id}', 'Packed')">Mark Packed</button>
+                    <button class="tbl-btn tbl-btn-danger" onclick="cancelOrderAdmin('${order.id}')">Cancel</button>
+                `;
+            } else if (order.status === "Packed") {
+                actionBtnHTML = `
+                    <button class="tbl-btn tbl-btn-assign" style="background:#86198f;color:white;" onclick="openAssignRiderModal('${order.id}')">🛵 Assign Rider</button>
+                    <button class="tbl-btn tbl-btn-danger" onclick="cancelOrderAdmin('${order.id}')">Cancel</button>
+                `;
+            } else if (order.status === "Rider Assigned") {
+                actionBtnHTML = `
+                    <button class="tbl-btn tbl-btn-edit" onclick="advanceOrderStatus('${order.id}', 'Picked Up')">Mark Picked Up</button>
+                    <button class="tbl-btn tbl-btn-assign" onclick="openAssignRiderModal('${order.id}')">Reassign</button>
+                `;
+            } else if (order.status === "Picked Up") {
+                actionBtnHTML = `
+                    <button class="tbl-btn tbl-btn-edit" onclick="advanceOrderStatus('${order.id}', 'Out for Delivery')">Out for Delivery</button>
+                `;
+            } else if (order.status === "Out for Delivery") {
+                actionBtnHTML = `
+                    <button class="tbl-btn tbl-btn-assign" style="background:#148550;color:white;" onclick="advanceOrderStatus('${order.id}', 'Delivered')">Mark Delivered</button>
+                `;
+            } else if (order.status === "Delivered") {
+                actionBtnHTML = `<span style="color:#148550;font-weight:700;font-size:12px;">✓ Completed</span>`;
+            } else if (order.status === "Cancelled") {
+                actionBtnHTML = `<span style="color:#dc2626;font-weight:700;font-size:12px;">Order Cancelled</span>`;
+            }
+
+            tr.innerHTML = `
+                <td>
+                    <strong>#${order.id}</strong><br>
+                    <button class="tbl-btn tbl-btn-view" style="margin-top:4px;" onclick="viewOrderDetails('${order.id}')">View Details</button>
+                </td>
+                <td><small>${order.orderDate}</small></td>
+                <td>
+                    <strong>${order.customerName}</strong><br>
+                    <small style="color:#666;">📞 ${order.phone}</small><br>
+                    <small style="color:#777;">${order.city} - ${order.pincode}</small>
+                </td>
+                <td>${order.items.length} item(s)</td>
+                <td><strong style="color:#19a463;font-size:15px;">₹${order.total}</strong></td>
+                <td>${getPill(order.status)}</td>
+                <td>${order.riderName ? `🛵 <strong>${order.riderName}</strong><br><small style="color:#666;">${order.riderVehicle || ''}</small>` : '<span style="color:#999;">Not Assigned</span>'}</td>
+                <td>
+                    <div class="action-btn-group">
+                        ${actionBtnHTML}
+                    </div>
+                </td>
+            `;
+
+            tableBody.appendChild(tr);
+        });
+    }
+
+    // 3. Status Progression Action
+    window.advanceOrderStatus = function(orderId, newStatus) {
+        if (confirm(`Update order #${orderId} status to '${newStatus}'?`)) {
+            window.GroceryStore.updateOrderStatus(orderId, newStatus);
+            renderOrders();
+        }
+    };
+
+    window.cancelOrderAdmin = function(orderId) {
+        if (confirm(`Are you sure you want to cancel order #${orderId}? Product stock will be returned.`)) {
+            window.GroceryStore.cancelOrder(orderId);
+            renderOrders();
+        }
+    };
+
+    // 4. View Order Details Modal
+    window.viewOrderDetails = function(orderId) {
+        const order = window.GroceryStore.getOrders().find(o => o.id === orderId);
+        if (!order) return;
+
+        document.getElementById("detailsModalTitle").textContent = `Order Details #${order.id}`;
+
+        let itemsRows = "";
+        order.items.forEach(i => {
+            itemsRows += `
+                <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px dashed #eee;font-size:13px;">
+                    <span>${i.icon || '🛒'} ${i.name} × ${i.quantity} (${i.unit || 'unit'})</span>
+                    <strong>₹${Number(i.price) * Number(i.quantity)}</strong>
+                </div>
+            `;
+        });
+
+        document.getElementById("detailsModalContent").innerHTML = `
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;background:#f7faf8;border-radius:10px;padding:16px;margin-bottom:18px;">
+                <div>
+                    <small style="color:#777;display:block;">Customer</small>
+                    <strong>${order.customerName}</strong> (${order.phone})
+                </div>
+                <div>
+                    <small style="color:#777;display:block;">Current Status</small>
+                    ${getPill(order.status)}
+                </div>
+                <div>
+                    <small style="color:#777;display:block;">Address</small>
+                    ${order.address}, ${order.city} - ${order.pincode}
+                </div>
+                <div>
+                    <small style="color:#777;display:block;">Payment Method</small>
+                    <strong>${order.paymentMethod}</strong>
+                </div>
+            </div>
+
+            <h4 style="font-size:14px;margin-bottom:10px;color:#333;">Order Items</h4>
+            <div style="margin-bottom:18px;">
+                ${itemsRows}
+            </div>
+
+            <div style="border-top:1px solid #eee;padding-top:12px;font-size:14px;">
+                <div style="display:flex;justify-content:space-between;margin-bottom:6px;color:#666;">
+                    <span>Subtotal</span>
+                    <strong>₹${order.subtotal}</strong>
+                </div>
+                ${order.discount ? `
+                    <div style="display:flex;justify-content:space-between;margin-bottom:6px;color:#19a463;">
+                        <span>Discount (${order.couponCode || 'Promo'})</span>
+                        <strong>- ₹${order.discount}</strong>
+                    </div>
+                ` : ''}
+                <div style="display:flex;justify-content:space-between;margin-bottom:8px;color:#666;">
+                    <span>Delivery Fee</span>
+                    <strong>${order.deliveryFee === 0 ? 'FREE' : '₹' + order.deliveryFee}</strong>
+                </div>
+                <div style="display:flex;justify-content:space-between;font-size:18px;font-weight:800;color:#1a2a1e;padding-top:8px;border-top:1px solid #eee;">
+                    <span>Total Amount</span>
+                    <strong style="color:#19a463;">₹${order.total}</strong>
+                </div>
+            </div>
+
+            ${order.riderName ? `
+                <div style="margin-top:18px;background:#eff6ff;border:1px solid #bfdbfe;border-radius:8px;padding:12px 14px;font-size:13px;">
+                    <strong>🛵 Assigned Delivery Partner:</strong> ${order.riderName} (${order.riderVehicle || 'Bike'}) • Phone: ${order.riderPhone}
+                </div>
+            ` : ''}
+        `;
+
+        document.getElementById("orderDetailsModal").style.display = "flex";
+    };
+
+    window.closeOrderDetailsModal = function(e) {
+        if (e && e.target !== e.currentTarget && !e.target.classList.contains("modal-close-btn") && !e.target.classList.contains("modal-cancel-btn")) {
+            return;
+        }
+        document.getElementById("orderDetailsModal").style.display = "none";
+    };
+
+    // 5. Assign Rider Modal (Section 30)
+    window.openAssignRiderModal = function(orderId) {
+        const order = window.GroceryStore.getOrders().find(o => o.id === orderId);
+        if (!order) return;
+
+        document.getElementById("assignTargetOrderId").value = order.id;
+        document.getElementById("assignOrderMeta").textContent = `Assigning partner for Order #${order.id} (Delivery to: ${order.customerName}, ${order.city})`;
+
+        const riders = window.GroceryStore.getRiders();
+        const availableRiders = riders.filter(r => r.status === "Available");
+        const listContainer = document.getElementById("availableRidersList");
+
+        if (availableRiders.length === 0) {
+            listContainer.innerHTML = `
+                <div style="text-align:center;padding:24px;background:#fef2f2;border:1px solid #fecaca;border-radius:8px;color:#dc2626;">
+                    <strong>No Available Riders!</strong>
+                    <p style="font-size:13px;margin-top:4px;">All delivery partners are currently busy, offline, or suspended.</p>
+                    <a href="riders.html" style="display:inline-block;margin-top:10px;color:#19a463;font-weight:700;">Open Rider Management →</a>
+                </div>
+            `;
+        } else {
+            listContainer.innerHTML = "";
+            availableRiders.forEach(r => {
+                const item = document.createElement("div");
+                item.style.cssText = "display:flex;justify-content:space-between;align-items:center;padding:12px 16px;border:1px solid #e2ebe4;border-radius:8px;background:#fdfefe;";
+                item.innerHTML = `
+                    <div>
+                        <strong>🛵 ${r.name}</strong> <small style="color:#777;">(${r.id})</small>
+                        <div style="font-size:12px;color:#555;margin-top:2px;">
+                            ${r.vehicleType} • ${r.vehicleNumber} • 📞 ${r.phone}
+                        </div>
+                    </div>
+                    <button class="tbl-btn tbl-btn-assign" onclick="confirmRiderAssignment('${r.id}')">
+                        Assign to Order
+                    </button>
+                `;
+                listContainer.appendChild(item);
+            });
+        }
+
+        document.getElementById("assignRiderModal").style.display = "flex";
+    };
+
+    window.closeAssignRiderModal = function(e) {
+        if (e && e.target !== e.currentTarget && !e.target.classList.contains("modal-close-btn") && !e.target.classList.contains("modal-cancel-btn")) {
+            return;
+        }
+        document.getElementById("assignRiderModal").style.display = "none";
+    };
+
+    window.confirmRiderAssignment = function(riderId) {
+        const orderId = document.getElementById("assignTargetOrderId").value;
+        const res = window.GroceryStore.assignRiderToOrder(orderId, riderId);
+        if (res.success) {
+            alert(res.message);
+            closeAssignRiderModal();
+            renderOrders();
+        } else {
+            alert(res.message);
+        }
+    };
+
+    searchInput.addEventListener("input", renderOrders);
+    statusFilter.addEventListener("change", renderOrders);
+    renderOrders();
+})();
+</script>
+
+</body>
+</html>

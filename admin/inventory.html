@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GroceryGo Admin - Inventory Management</title>
+    <link rel="stylesheet" href="../style.css">
+    <link rel="stylesheet" href="../admin.css">
+</head>
+
+<body>
+
+<!-- ================= ADMIN NAVBAR ================= -->
+<header class="admin-navbar">
+    <div class="admin-navbar-inner">
+        <div class="admin-brand">
+            <div class="admin-logo">🛒 GroceryGo</div>
+            <span class="admin-badge">Admin Console</span>
+        </div>
+
+        <nav class="admin-nav-links">
+            <a href="dashboard.html" class="admin-nav-item">📊 Dashboard</a>
+            <a href="products.html" class="admin-nav-item">🍎 Products</a>
+            <a href="categories.html" class="admin-nav-item">🗂️ Categories</a>
+            <a href="inventory.html" class="admin-nav-item active">📦 Inventory</a>
+            <a href="orders.html" class="admin-nav-item">🛍️ Orders</a>
+            <a href="riders.html" class="admin-nav-item">🛵 Riders</a>
+            <a href="users.html" class="admin-nav-item">👥 Users</a>
+            <a href="offers.html" class="admin-nav-item">🏷️ Offers</a>
+            <a href="reports.html" class="admin-nav-item">📈 Reports</a>
+        </nav>
+
+        <div class="admin-nav-actions">
+            <div class="admin-profile-pill">
+                <span>🛡️</span>
+                <span id="adminProfileName">Admin</span>
+            </div>
+            <button class="admin-logout-btn" onclick="logout()">Logout</button>
+        </div>
+    </div>
+</header>
+
+<main class="admin-main">
+
+    <div class="admin-page-header">
+        <div>
+            <h1>📦 Inventory Stock Management</h1>
+            <p>Monitor warehouse and store shelf quantities, replenish low stock items, and manage product availability.</p>
+        </div>
+    </div>
+
+    <!-- INVENTORY SUMMARY CARDS -->
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="stat-top">
+                <div class="stat-icon icon-blue">📦</div>
+                <span class="pill pill-blue">Catalog</span>
+            </div>
+            <div class="stat-val" id="invTotalProducts">0</div>
+            <div class="stat-label">Total SKUs in Inventory</div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-top">
+                <div class="stat-icon icon-green">✅</div>
+                <span class="pill pill-green">Healthy</span>
+            </div>
+            <div class="stat-val" id="invInStock">0</div>
+            <div class="stat-label">In Stock (> 10 items)</div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-top">
+                <div class="stat-icon icon-amber">⚠️</div>
+                <span class="pill pill-amber">Attention</span>
+            </div>
+            <div class="stat-val" id="invLowStock">0</div>
+            <div class="stat-label">Low Stock (1-10 items)</div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-top">
+                <div class="stat-icon icon-red">🚨</div>
+                <span class="pill pill-red">Critical</span>
+            </div>
+            <div class="stat-val" id="invOutOfStock">0</div>
+            <div class="stat-label">Out of Stock (0 items)</div>
+        </div>
+    </div>
+
+    <!-- INVENTORY TABLE CARD -->
+    <div class="admin-card">
+        <div class="card-title-bar">
+            <h2>Warehouse Stock List</h2>
+
+            <div class="search-filter-bar">
+                <input type="text" id="invSearchInput" class="admin-search-input" placeholder="Search SKU or name...">
+                <select id="invStockStatusSelect" class="admin-select">
+                    <option value="All">All Stock Levels</option>
+                    <option value="InStock">In Stock (>10)</option>
+                    <option value="LowStock">Low Stock (≤10)</option>
+                    <option value="OutOfStock">Out of Stock (0)</option>
+                </select>
+                <select id="invCategorySelect" class="admin-select">
+                    <option value="All">All Categories</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="table-responsive">
+            <table class="admin-table">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Product Item</th>
+                        <th>Category</th>
+                        <th>Current Units</th>
+                        <th>Unit Price</th>
+                        <th>Health Status</th>
+                        <th>Quick Stock Adjust</th>
+                        <th>Manage</th>
+                    </tr>
+                </thead>
+                <tbody id="inventoryTableBody">
+                    <!-- Populated dynamically -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+</main>
+
+<!-- SET STOCK MODAL -->
+<div id="stockModal" class="modal-overlay" onclick="closeStockModal(event)">
+    <div class="modal-container" style="max-width:420px;" onclick="event.stopPropagation()">
+        <div class="modal-header-bar">
+            <h3 id="stockModalTitle">Update Stock Quantity</h3>
+            <button class="modal-close-btn" onclick="closeStockModal()">✕</button>
+        </div>
+
+        <form id="stockForm">
+            <div class="modal-body-content">
+                <input type="hidden" id="stockModalProductId">
+                <p id="stockModalProductName" style="font-weight:700;margin-bottom:14px;color:#222;"></p>
+
+                <div class="modal-form-group">
+                    <label for="newStockQuantity">Exact Stock Units in Stockroom *</label>
+                    <input type="number" id="newStockQuantity" required min="0" step="1">
+                </div>
+            </div>
+
+            <div class="modal-footer-bar">
+                <button type="button" class="modal-cancel-btn" onclick="closeStockModal()">Cancel</button>
+                <button type="submit" class="modal-submit-btn">Update Stock</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- SCRIPTS -->
+<script src="../store.js"></script>
+<script src="../auth.js"></script>
+
+<script>
+(function() {
+    // 1. Guard Page
+    const admin = window.GroceryAuth.protectPage("admin");
+    if (!admin) return;
+
+    document.getElementById("adminProfileName").textContent = admin.name || "Administrator";
+
+    const tableBody = document.getElementById("inventoryTableBody");
+    const searchInput = document.getElementById("invSearchInput");
+    const stockStatusSelect = document.getElementById("invStockStatusSelect");
+    const categorySelect = document.getElementById("invCategorySelect");
+
+    // 2. Populate Category Select
+    function populateCategories() {
+        const categories = window.GroceryStore.getCategories();
+        categorySelect.innerHTML = `<option value="All">All Categories</option>`;
+        categories.forEach(cat => {
+            categorySelect.innerHTML += `<option value="${cat.name}">${cat.icon} ${cat.name}</option>`;
+        });
+    }
+
+    // 3. Render Inventory
+    function renderInventory() {
+        const products = window.GroceryStore.getProducts();
+
+        // Calculate Summary
+        const total = products.length;
+        const inStock = products.filter(p => p.stock > 10).length;
+        const lowStock = products.filter(p => p.stock > 0 && p.stock <= 10).length;
+        const outOfStock = products.filter(p => p.stock <= 0).length;
+
+        document.getElementById("invTotalProducts").textContent = total;
+        document.getElementById("invInStock").textContent = inStock;
+        document.getElementById("invLowStock").textContent = lowStock;
+        document.getElementById("invOutOfStock").textContent = outOfStock;
+
+        // Apply Filters
+        const query = searchInput.value.toLowerCase().trim();
+        const stockFilter = stockStatusSelect.value;
+        const catFilter = categorySelect.value;
+
+        const filtered = products.filter(p => {
+            const matchesQuery = p.name.toLowerCase().includes(query) || p.category.toLowerCase().includes(query);
+            const matchesCat = (catFilter === "All") || (p.category.toLowerCase() === catFilter.toLowerCase());
+
+            let matchesStock = true;
+            if (stockFilter === "InStock") matchesStock = p.stock > 10;
+            else if (stockFilter === "LowStock") matchesStock = p.stock > 0 && p.stock <= 10;
+            else if (stockFilter === "OutOfStock") matchesStock = p.stock <= 0;
+
+            return matchesQuery && matchesCat && matchesStock;
+        });
+
+        tableBody.innerHTML = "";
+
+        if (filtered.length === 0) {
+            tableBody.innerHTML = `<tr><td colspan="8" style="text-align:center;padding:30px;color:#888;">No inventory items found matching your filters.</td></tr>`;
+            return;
+        }
+
+        filtered.forEach(p => {
+            const tr = document.createElement("tr");
+
+            let pill = '<span class="pill pill-green">In Stock</span>';
+            if (p.stock <= 0) pill = '<span class="pill pill-red">Out of Stock</span>';
+            else if (p.stock <= 10) pill = '<span class="pill pill-amber">Low Stock</span>';
+
+            tr.innerHTML = `
+                <td><strong>#${p.id}</strong></td>
+                <td>
+                    <div style="display:flex;align-items:center;gap:10px;">
+                        <span style="font-size:24px;">${p.icon}</span>
+                        <div>
+                            <strong>${p.name}</strong>
+                            <small style="display:block;color:#777;">${p.unit}</small>
+                        </div>
+                    </div>
+                </td>
+                <td>${p.category}</td>
+                <td><strong style="font-size:15px;color:${p.stock <= 0 ? '#dc2626' : (p.stock <= 10 ? '#d97706' : '#148550')}">${p.stock}</strong></td>
+                <td>₹${p.price}</td>
+                <td>${pill}</td>
+                <td>
+                    <div class="action-btn-group">
+                        <button class="tbl-btn tbl-btn-edit" onclick="quickStockDelta(${p.id}, 10)">+10</button>
+                        <button class="tbl-btn tbl-btn-edit" onclick="quickStockDelta(${p.id}, 25)">+25</button>
+                        <button class="tbl-btn tbl-btn-edit" onclick="quickStockDelta(${p.id}, -5)">−5</button>
+                    </div>
+                </td>
+                <td>
+                    <button class="tbl-btn tbl-btn-assign" onclick="openSetStockModal(${p.id})">Set Stock</button>
+                </td>
+            `;
+
+            tableBody.appendChild(tr);
+        });
+    }
+
+    // 4. Quick Adjust Stock
+    window.quickStockDelta = function(id, delta) {
+        const products = window.GroceryStore.getProducts();
+        const p = products.find(prod => prod.id === id);
+        if (p) {
+            p.stock = Math.max(0, p.stock + delta);
+            window.GroceryStore.saveProducts(products);
+            renderInventory();
+        }
+    };
+
+    // 5. Set Stock Modal
+    window.openSetStockModal = function(id) {
+        const product = window.GroceryStore.getProductById(id);
+        if (!product) return;
+
+        document.getElementById("stockModalProductId").value = product.id;
+        document.getElementById("stockModalProductName").textContent = `${product.icon} ${product.name} (${product.unit})`;
+        document.getElementById("newStockQuantity").value = product.stock;
+        document.getElementById("stockModal").style.display = "flex";
+    };
+
+    window.closeStockModal = function(e) {
+        if (e && e.target !== e.currentTarget && !e.target.classList.contains("modal-close-btn") && !e.target.classList.contains("modal-cancel-btn")) {
+            return;
+        }
+        document.getElementById("stockModal").style.display = "none";
+    };
+
+    document.getElementById("stockForm").addEventListener("submit", function(e) {
+        e.preventDefault();
+        const id = Number(document.getElementById("stockModalProductId").value);
+        const newStock = Number(document.getElementById("newStockQuantity").value);
+
+        const products = window.GroceryStore.getProducts();
+        const p = products.find(prod => prod.id === id);
+        if (p) {
+            p.stock = Math.max(0, newStock);
+            window.GroceryStore.saveProducts(products);
+            closeStockModal();
+            renderInventory();
+        }
+    });
+
+    searchInput.addEventListener("input", renderInventory);
+    stockStatusSelect.addEventListener("change", renderInventory);
+    categorySelect.addEventListener("change", renderInventory);
+
+    populateCategories();
+    renderInventory();
+})();
+</script>
+
+</body>
+</html>

@@ -1,0 +1,511 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GroceryGo - Checkout</title>
+    <link rel="stylesheet" href="../style.css">
+
+    <style>
+        .checkout-page {
+            padding: 40px 7%;
+            min-height: 80vh;
+        }
+
+        .checkout-title {
+            margin-bottom: 28px;
+        }
+
+        .checkout-title h1 {
+            font-size: 30px;
+            color: #1a2a1e;
+            margin-bottom: 6px;
+        }
+
+        .checkout-title p {
+            color: #666;
+            font-size: 14px;
+        }
+
+        .checkout-layout {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 30px;
+            align-items: flex-start;
+        }
+
+        .checkout-card,
+        .order-summary {
+            background: white;
+            border: 1px solid #e8eee9;
+            border-radius: 14px;
+            padding: 26px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.03);
+        }
+
+        .checkout-card h2,
+        .order-summary h2 {
+            font-size: 18px;
+            color: #222;
+            margin-bottom: 20px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid #f2f6f3;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+        }
+
+        .input-group {
+            margin-bottom: 18px;
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 7px;
+            font-weight: 600;
+            font-size: 13px;
+            color: #333;
+        }
+
+        .input-group input,
+        .input-group textarea,
+        .input-group select {
+            width: 100%;
+            padding: 12px 14px;
+            border: 1px solid #dbe2dd;
+            border-radius: 8px;
+            outline: none;
+            font-size: 14px;
+            background: #fafcfa;
+            transition: all 0.2s;
+        }
+
+        .input-group input:focus,
+        .input-group textarea:focus,
+        .input-group select:focus {
+            border-color: #19a463;
+            background: #fff;
+            box-shadow: 0 0 0 3px rgba(25, 164, 99, 0.1);
+        }
+
+        .input-group textarea {
+            height: 85px;
+            resize: vertical;
+        }
+
+        .payment-options {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-top: 10px;
+            margin-bottom: 24px;
+        }
+
+        .payment-option {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 14px 16px;
+            border: 1px solid #e2ebe5;
+            border-radius: 9px;
+            cursor: pointer;
+            background: #fdfefe;
+            transition: all 0.2s;
+        }
+
+        .payment-option input {
+            accent-color: #19a463;
+            width: 18px;
+            height: 18px;
+        }
+
+        .payment-option:hover {
+            background: #f4faf6;
+            border-color: #19a463;
+        }
+
+        .payment-option.active {
+            border-color: #19a463;
+            background: #f0f9f3;
+        }
+
+        .summary-items-list {
+            max-height: 250px;
+            overflow-y: auto;
+            margin-bottom: 16px;
+            padding-right: 5px;
+        }
+
+        .summary-item-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 0;
+            font-size: 13px;
+            color: #555;
+            border-bottom: 1px dashed #f0f4f1;
+        }
+
+        .summary-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+            font-size: 14px;
+            color: #555;
+        }
+
+        .summary-total {
+            border-top: 1px solid #eef2ef;
+            padding-top: 16px;
+            margin-top: 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 20px;
+            font-weight: 800;
+            color: #1a2a1e;
+        }
+
+        .summary-total .total-amount {
+            color: #19a463;
+        }
+
+        .place-order-btn {
+            width: 100%;
+            margin-top: 24px;
+            padding: 15px;
+            border: none;
+            border-radius: 10px;
+            background: linear-gradient(135deg, #19a463, #158b50);
+            color: white;
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            box-shadow: 0 8px 20px rgba(25, 164, 99, 0.25);
+            transition: all 0.2s;
+        }
+
+        .place-order-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 25px rgba(25, 164, 99, 0.35);
+        }
+
+        /* Success Card */
+        .success-box {
+            display: none;
+            text-align: center;
+            padding: 60px 24px;
+            background: white;
+            border-radius: 16px;
+            border: 1px solid #e8eee9;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .success-icon {
+            font-size: 70px;
+            margin-bottom: 16px;
+        }
+
+        .success-box h2 {
+            color: #19a463;
+            font-size: 26px;
+            margin-bottom: 8px;
+        }
+
+        .success-details-card {
+            background: #f7faf8;
+            border: 1px solid #e2ebe4;
+            border-radius: 12px;
+            padding: 20px;
+            margin: 20px 0;
+            text-align: left;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+
+        @media (max-width: 850px) {
+            .checkout-layout {
+                grid-template-columns: 1fr;
+            }
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<!-- ================= NAVBAR ================= -->
+<header class="navbar">
+    <div class="logo">
+        🛒 <span>GroceryGo</span>
+    </div>
+
+    <div class="nav-actions">
+        <a href="dashboard.html" class="login-link">Shop</a>
+        <a href="orders.html" class="login-link">My Orders</a>
+        <a href="cart.html" class="cart-button">
+            🛒 Cart
+            <span id="cartCount">0</span>
+        </a>
+        <a href="profile.html" class="login-link">👤 Profile</a>
+        <button type="button" onclick="logout()" class="register-link" style="border:none;background:none;cursor:pointer;">
+            Logout
+        </button>
+    </div>
+</header>
+
+<main class="checkout-page">
+
+    <div class="checkout-title" id="checkoutHeader">
+        <h1>📍 Finalize Your Order</h1>
+        <p>Enter your delivery address and choose your payment method.</p>
+    </div>
+
+    <!-- MAIN CHECKOUT CONTENT -->
+    <div id="checkoutContent" class="checkout-layout">
+
+        <!-- DELIVERY & PAYMENT FORM -->
+        <div class="checkout-card">
+            <h2>Delivery Address & Details</h2>
+
+            <form id="checkoutForm">
+                <div class="form-row">
+                    <div class="input-group">
+                        <label for="customerName">Full Name *</label>
+                        <input type="text" id="customerName" required placeholder="e.g. Rahul Sharma">
+                    </div>
+
+                    <div class="input-group">
+                        <label for="phone">Phone Number *</label>
+                        <input type="tel" id="phone" required placeholder="10-digit mobile number" pattern="[0-9]{10}">
+                    </div>
+                </div>
+
+                <div class="input-group">
+                    <label for="address">Delivery Address (House/Flat, Street, Landmark) *</label>
+                    <textarea id="address" required placeholder="e.g. Flat 302, Green Valley Apts, Bandar Road"></textarea>
+                </div>
+
+                <div class="form-row">
+                    <div class="input-group">
+                        <label for="city">City *</label>
+                        <input type="text" id="city" required value="Vijayawada">
+                    </div>
+
+                    <div class="input-group">
+                        <label for="pincode">Pincode *</label>
+                        <input type="text" id="pincode" required placeholder="6-digit pincode" pattern="[0-9]{6}">
+                    </div>
+                </div>
+
+                <h2 style="margin-top:20px;">Payment Method</h2>
+
+                <div class="payment-options">
+                    <label class="payment-option active">
+                        <input type="radio" name="payment" value="Cash on Delivery" checked>
+                        <div>
+                            <strong>💵 Cash on Delivery (COD)</strong>
+                            <small style="display:block;color:#777;font-size:12px;">Pay conveniently with cash or UPI at your doorstep</small>
+                        </div>
+                    </label>
+
+                    <label class="payment-option">
+                        <input type="radio" name="payment" value="Online Payment (Demo)">
+                        <div>
+                            <strong>💳 Online Payment (Academic Demo)</strong>
+                            <small style="display:block;color:#777;font-size:12px;">Instant simulated card / UPI / NetBanking authorization</small>
+                        </div>
+                    </label>
+                </div>
+
+                <button type="submit" class="place-order-btn">
+                    🛍️ Place Order Now
+                </button>
+            </form>
+        </div>
+
+        <!-- ORDER SUMMARY SIDEBAR -->
+        <div class="order-summary">
+            <h2>Order Summary</h2>
+
+            <div class="summary-items-list" id="summaryItemsList">
+                <!-- Dynamically populated -->
+            </div>
+
+            <div class="summary-row">
+                <span>Subtotal</span>
+                <strong id="summarySubtotal">₹0</strong>
+            </div>
+
+            <div class="summary-row" id="discountRow" style="display:none;color:#19a463;font-weight:600;">
+                <span>Coupon Discount</span>
+                <strong id="summaryDiscount">- ₹0</strong>
+            </div>
+
+            <div class="summary-row">
+                <span>Delivery Fee</span>
+                <strong id="summaryDelivery">₹0</strong>
+            </div>
+
+            <div class="summary-total">
+                <span>Total Amount</span>
+                <span class="total-amount" id="summaryTotal">₹0</span>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- SUCCESS CONFIRMATION BOX -->
+    <div id="successBox" class="success-box">
+        <div class="success-icon">🎉</div>
+        <h2>Order Placed Successfully!</h2>
+        <p style="color:#666;font-size:15px;">Thank you for shopping with GroceryGo! Your order has been placed and is being prepared.</p>
+
+        <div class="success-details-card" id="successDetails">
+            <!-- Dynamically populated -->
+        </div>
+
+        <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin-top:24px;">
+            <a href="orders.html" class="primary-btn" style="text-decoration:none;padding:12px 24px;">
+                📦 Track Order Now
+            </a>
+            <a href="dashboard.html" class="secondary-btn" style="text-decoration:none;padding:12px 24px;">
+                Continue Shopping
+            </a>
+        </div>
+    </div>
+
+</main>
+
+<!-- SCRIPTS -->
+<script src="../store.js"></script>
+<script src="../auth.js"></script>
+
+<script>
+(function() {
+    // 1. Guard Page
+    const user = window.GroceryAuth.protectPage("user");
+    if (!user) return;
+
+    // 2. Cart Check
+    const cart = window.GroceryStore.getCart();
+    if (!cart || cart.length === 0) {
+        window.location.href = "cart.html";
+        return;
+    }
+
+    // 3. Auto-fill User Name
+    if (user.name) {
+        document.getElementById("customerName").value = user.name;
+    }
+
+    // 4. Update Navbar Cart Count
+    document.getElementById("cartCount").textContent = window.GroceryStore.getCartCount();
+
+    // 5. Calculate Totals with Coupon
+    const savedCoupon = sessionStorage.getItem("appliedCouponCode") || "";
+    const totals = window.GroceryStore.calculateTotals(savedCoupon);
+
+    // 6. Populate Summary Items
+    const itemsList = document.getElementById("summaryItemsList");
+    itemsList.innerHTML = "";
+    cart.forEach(item => {
+        const row = document.createElement("div");
+        row.className = "summary-item-row";
+        row.innerHTML = `
+            <span>${item.icon || "🛒"} ${item.name} × ${item.quantity}</span>
+            <strong>₹${Number(item.price) * Number(item.quantity)}</strong>
+        `;
+        itemsList.appendChild(row);
+    });
+
+    document.getElementById("summarySubtotal").textContent = `₹${totals.subtotal}`;
+    document.getElementById("summaryDelivery").textContent = totals.deliveryFee === 0 ? "FREE" : `₹${totals.deliveryFee}`;
+    document.getElementById("summaryTotal").textContent = `₹${totals.total}`;
+
+    if (totals.discount > 0) {
+        document.getElementById("discountRow").style.display = "flex";
+        document.getElementById("summaryDiscount").textContent = `- ₹${totals.discount} (${totals.appliedCoupon.code})`;
+    }
+
+    // Payment option selection styling
+    const paymentOptions = document.querySelectorAll(".payment-option");
+    paymentOptions.forEach(opt => {
+        opt.addEventListener("click", () => {
+            paymentOptions.forEach(o => o.classList.remove("active"));
+            opt.classList.add("active");
+        });
+    });
+
+    // 7. Place Order Submission
+    document.getElementById("checkoutForm").addEventListener("submit", function(e) {
+        e.preventDefault();
+
+        const customerName = document.getElementById("customerName").value.trim();
+        const phone = document.getElementById("phone").value.trim();
+        const address = document.getElementById("address").value.trim();
+        const city = document.getElementById("city").value.trim();
+        const pincode = document.getElementById("pincode").value.trim();
+        const paymentMethod = document.querySelector('input[name="payment"]:checked').value;
+
+        if (!customerName || !phone || !address || !city || !pincode) {
+            alert("Please fill in all delivery details.");
+            return;
+        }
+
+        // Create Order using Store API
+        const newOrder = window.GroceryStore.createOrder({
+            userId: user.id,
+            customerName,
+            phone,
+            address,
+            city,
+            pincode,
+            paymentMethod,
+            items: cart,
+            subtotal: totals.subtotal,
+            deliveryFee: totals.deliveryFee,
+            discount: totals.discount,
+            couponCode: totals.appliedCoupon ? totals.appliedCoupon.code : null,
+            total: totals.total
+        });
+
+        // Clear used coupon session
+        sessionStorage.removeItem("appliedCouponCode");
+
+        // Update Navbar Count
+        document.getElementById("cartCount").textContent = "0";
+
+        // Display Success Screen
+        document.getElementById("checkoutHeader").style.display = "none";
+        document.getElementById("checkoutContent").style.display = "none";
+        const successBox = document.getElementById("successBox");
+        successBox.style.display = "block";
+
+        document.getElementById("successDetails").innerHTML = `
+            <div><strong>Order ID:</strong> <span style="color:#19a463;font-weight:700;">${newOrder.id}</span></div>
+            <div><strong>Recipient:</strong> ${newOrder.customerName} (${newOrder.phone})</div>
+            <div><strong>Delivery Address:</strong> ${newOrder.address}, ${newOrder.city} - ${newOrder.pincode}</div>
+            <div><strong>Payment Mode:</strong> ${newOrder.paymentMethod}</div>
+            <div><strong>Items Ordered:</strong> ${newOrder.items.length} product(s)</div>
+            <div><strong>Total Paid:</strong> <strong style="color:#19a463;font-size:16px;">₹${newOrder.total}</strong></div>
+            <div style="margin-top:6px;color:#777;font-size:12px;">Order Placed on ${newOrder.orderDate}</div>
+        `;
+
+        window.scrollTo({ top: 0, behavior: "smooth" });
+    });
+
+})();
+</script>
+
+</body>
+</html>

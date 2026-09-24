@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>GroceryGo - Create Account</title>
+
+    <link rel="stylesheet" href="auth.css">
+
+</head>
+
+
+<body>
+
+
+<div class="auth-page">
+
+    <div class="auth-wrapper">
+
+
+        <!-- ================= LEFT ================= -->
+
+        <section class="auth-left">
+
+            <div class="auth-logo">
+                🛒 GroceryGo
+            </div>
+
+
+            <div class="auth-left-content">
+
+                <h2>
+                    Your groceries,
+                    one click away.
+                </h2>
+
+                <p>
+                    Create your GroceryGo account
+                    and start shopping for everything
+                    you need from one place.
+                </p>
+
+
+                <div class="auth-features">
+
+                    <div class="auth-feature">
+
+                        <div class="auth-feature-icon">
+                            🛍️
+                        </div>
+
+                        <div class="auth-feature-text">
+
+                            <strong>
+                                Easy Shopping
+                            </strong>
+
+                            <small>
+                                Browse products in seconds
+                            </small>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="auth-feature">
+
+                        <div class="auth-feature-icon">
+                            📦
+                        </div>
+
+                        <div class="auth-feature-text">
+
+                            <strong>
+                                Track Orders
+                            </strong>
+
+                            <small>
+                                Keep track of your purchases
+                            </small>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="auth-feature">
+
+                        <div class="auth-feature-icon">
+                            🔒
+                        </div>
+
+                        <div class="auth-feature-text">
+
+                            <strong>
+                                Simple Account
+                            </strong>
+
+                            <small>
+                                Your details stay with your account
+                            </small>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- ================= RIGHT ================= -->
+
+        <section class="auth-right">
+
+
+            <a
+                href="index.html"
+                class="back-home"
+            >
+                ← Back to GroceryGo
+            </a>
+
+
+            <div class="auth-title">
+
+                <h1>
+                    Create Account
+                </h1>
+
+                <p>
+                    Join GroceryGo and start shopping
+                </p>
+
+            </div>
+
+
+            <form
+                id="registerForm"
+                class="auth-form"
+            >
+
+
+                <!-- NAME -->
+
+                <div class="input-group">
+
+                    <label for="name">
+                        Full Name
+                    </label>
+
+                    <div class="input-wrapper">
+
+                        <span class="input-icon">
+                            👤
+                        </span>
+
+                        <input
+                            type="text"
+                            id="name"
+                            placeholder="Enter your full name"
+                            required
+                        >
+
+                    </div>
+
+                </div>
+
+
+                <!-- EMAIL -->
+
+                <div class="input-group">
+
+                    <label for="email">
+                        Email Address
+                    </label>
+
+                    <div class="input-wrapper">
+
+                        <span class="input-icon">
+                            ✉️
+                        </span>
+
+                        <input
+                            type="email"
+                            id="email"
+                            placeholder="Enter your email"
+                            required
+                        >
+
+                    </div>
+
+                </div>
+
+
+                <!-- PASSWORD -->
+
+                <div class="input-group">
+
+                    <label for="password">
+                        Password
+                    </label>
+
+                    <div class="input-wrapper">
+
+                        <span class="input-icon">
+                            🔒
+                        </span>
+
+                        <input
+                            type="password"
+                            id="password"
+                            placeholder="Create a password"
+                            required
+                        >
+
+                    </div>
+
+                    <p class="password-note">
+                        Minimum 6 characters
+                    </p>
+
+                </div>
+
+
+                <!-- CONFIRM PASSWORD -->
+
+                <div class="input-group">
+
+                    <label for="confirmPassword">
+                        Confirm Password
+                    </label>
+
+                    <div class="input-wrapper">
+
+                        <span class="input-icon">
+                            🔐
+                        </span>
+
+                        <input
+                            type="password"
+                            id="confirmPassword"
+                            placeholder="Re-enter your password"
+                            required
+                        >
+
+                    </div>
+
+                </div>
+
+
+                <!-- REGISTER -->
+
+                <button
+                    type="submit"
+                    class="auth-btn"
+                >
+                    Create My Account
+                </button>
+
+
+                <p
+                    id="registerMessage"
+                    class="message"
+                ></p>
+
+
+            </form>
+
+
+            <div class="auth-divider">
+
+                <span></span>
+
+                <p>
+                    Already a member?
+                </p>
+
+                <span></span>
+
+            </div>
+
+
+            <p class="auth-switch">
+
+                Already have an account?
+
+                <a href="login.html">
+                    Login
+                </a>
+
+            </p>
+
+
+        </section>
+
+    </div>
+
+</div>
+
+
+<script src="store.js"></script>
+<script src="auth.js"></script>
+
+</body>
+
+</html>

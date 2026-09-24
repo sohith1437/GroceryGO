@@ -1,0 +1,556 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GroceryGo - My Orders</title>
+    <link rel="stylesheet" href="../style.css">
+
+    <style>
+        .orders-page {
+            padding: 40px 7%;
+            min-height: 80vh;
+        }
+
+        .orders-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+            margin-bottom: 28px;
+            flex-wrap: wrap;
+            gap: 16px;
+        }
+
+        .orders-header h1 {
+            font-size: 30px;
+            color: #1a2a1e;
+            margin-bottom: 6px;
+        }
+
+        .orders-header p {
+            color: #666;
+            font-size: 14px;
+        }
+
+        .order-card {
+            background: white;
+            border: 1px solid #e8eee9;
+            border-radius: 14px;
+            padding: 24px;
+            margin-bottom: 24px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.03);
+            transition: border-color 0.2s;
+        }
+
+        .order-card:hover {
+            border-color: #cde2d4;
+        }
+
+        .order-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #f0f4f1;
+            padding-bottom: 16px;
+            margin-bottom: 18px;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+
+        .order-id-group strong {
+            font-size: 17px;
+            color: #1a2a1e;
+        }
+
+        .order-id-group small {
+            display: block;
+            color: #777;
+            font-size: 12px;
+            margin-top: 3px;
+        }
+
+        .status-badge {
+            padding: 6px 14px;
+            border-radius: 999px;
+            font-weight: 700;
+            font-size: 12px;
+            letter-spacing: 0.3px;
+            text-transform: uppercase;
+        }
+
+        .status-placed { background: #eaf4fd; color: #1e70bf; }
+        .status-confirmed { background: #eef2ff; color: #4338ca; }
+        .status-packed { background: #fef3e2; color: #b45309; }
+        .status-rider-assigned { background: #fae8ff; color: #86198f; }
+        .status-picked-up { background: #fdf2f8; color: #9d174d; }
+        .status-out-for-delivery { background: #fffbeb; color: #b45309; }
+        .status-delivered { background: #e6f6ed; color: #148550; }
+        .status-cancelled { background: #fde8e8; color: #c81e1e; }
+
+        /* Stepper Tracking Timeline */
+        .tracking-container {
+            background: #fafcfa;
+            border: 1px solid #eef3ef;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 18px 0;
+        }
+
+        .tracking-title {
+            font-size: 13px;
+            font-weight: 700;
+            color: #444;
+            margin-bottom: 16px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .timeline-steps {
+            display: flex;
+            justify-content: space-between;
+            position: relative;
+            margin: 10px 0;
+        }
+
+        .timeline-steps::before {
+            content: "";
+            position: absolute;
+            top: 14px;
+            left: 20px;
+            right: 20px;
+            height: 3px;
+            background: #e2ebe4;
+            z-index: 1;
+        }
+
+        .timeline-step {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            position: relative;
+            z-index: 2;
+            flex: 1;
+            text-align: center;
+        }
+
+        .step-circle {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            background: #ffffff;
+            border: 2px solid #ccd8cf;
+            color: #888;
+            font-size: 13px;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 8px;
+            transition: all 0.25s;
+        }
+
+        .timeline-step.completed .step-circle {
+            background: #19a463;
+            border-color: #19a463;
+            color: white;
+        }
+
+        .timeline-step.active .step-circle {
+            background: #fff;
+            border-color: #19a463;
+            color: #19a463;
+            box-shadow: 0 0 0 4px rgba(25, 164, 99, 0.2);
+        }
+
+        .step-label {
+            font-size: 11px;
+            font-weight: 600;
+            color: #777;
+        }
+
+        .timeline-step.completed .step-label,
+        .timeline-step.active .step-label {
+            color: #19a463;
+            font-weight: 700;
+        }
+
+        /* Delivery Partner Info Banner */
+        .rider-banner {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: #eef7f2;
+            border: 1px solid #c9e8d5;
+            border-radius: 10px;
+            padding: 14px 18px;
+            margin: 16px 0;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+
+        .rider-profile-side {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .rider-avatar {
+            width: 44px;
+            height: 44px;
+            background: #ffffff;
+            border: 1px solid #bce1cb;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 22px;
+        }
+
+        .rider-details h4 {
+            font-size: 14px;
+            color: #1a2a1e;
+            margin-bottom: 2px;
+        }
+
+        .rider-details p {
+            font-size: 12px;
+            color: #555;
+        }
+
+        .rider-phone-btn {
+            background: #ffffff;
+            border: 1px solid #19a463;
+            color: #19a463;
+            padding: 8px 14px;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 700;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .rider-phone-btn:hover {
+            background: #19a463;
+            color: white;
+        }
+
+        /* Items Listing */
+        .order-items-box {
+            padding: 12px 0;
+        }
+
+        .order-item-line {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 0;
+            font-size: 14px;
+            border-bottom: 1px dashed #f2f5f3;
+        }
+
+        .order-item-line:last-child {
+            border-bottom: none;
+        }
+
+        .order-bottom {
+            border-top: 1px solid #f0f4f1;
+            margin-top: 14px;
+            padding-top: 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 14px;
+        }
+
+        .order-address-snippet {
+            font-size: 13px;
+            color: #666;
+            max-width: 450px;
+        }
+
+        .order-actions {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .order-total-amount {
+            font-size: 20px;
+            font-weight: 800;
+            color: #19a463;
+        }
+
+        .cancel-order-btn {
+            background: #fff;
+            border: 1px solid #e02424;
+            color: #e02424;
+            padding: 8px 16px;
+            border-radius: 6px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .cancel-order-btn:hover {
+            background: #fde8e8;
+        }
+
+        .empty-orders {
+            text-align: center;
+            padding: 60px 20px;
+            background: white;
+            border: 1px solid #e8eee9;
+            border-radius: 14px;
+        }
+
+        @media (max-width: 700px) {
+            .timeline-steps {
+                flex-wrap: wrap;
+                gap: 12px;
+            }
+            .timeline-steps::before {
+                display: none;
+            }
+            .timeline-step {
+                flex-basis: 30%;
+            }
+            .order-top,
+            .order-bottom {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            .order-actions {
+                width: 100%;
+                justify-content: space-between;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<!-- ================= NAVBAR ================= -->
+<header class="navbar">
+    <div class="logo">
+        🛒 <span>GroceryGo</span>
+    </div>
+
+    <div class="nav-actions">
+        <a href="dashboard.html" class="login-link">Shop</a>
+        <a href="orders.html" class="login-link" style="color:#19a463;font-weight:bold;">My Orders</a>
+        <a href="cart.html" class="cart-button">
+            🛒 Cart
+            <span id="cartCount">0</span>
+        </a>
+        <a href="profile.html" class="login-link">👤 Profile</a>
+        <button type="button" onclick="logout()" class="register-link" style="border:none;background:none;cursor:pointer;">
+            Logout
+        </button>
+    </div>
+</header>
+
+<main class="orders-page">
+
+    <div class="orders-header">
+        <div>
+            <h1>📦 My Orders</h1>
+            <p>Track your live grocery deliveries and review past purchases.</p>
+        </div>
+
+        <a href="dashboard.html" class="primary-btn" style="text-decoration:none;font-size:14px;padding:10px 18px;">
+            + Shop More Groceries
+        </a>
+    </div>
+
+    <div id="ordersContainer">
+        <!-- Rendered dynamically -->
+    </div>
+
+</main>
+
+<!-- SCRIPTS -->
+<script src="../store.js"></script>
+<script src="../auth.js"></script>
+
+<script>
+(function() {
+    // 1. Guard Page
+    const user = window.GroceryAuth.protectPage("user");
+    if (!user) return;
+
+    // 2. Update Navbar Cart Count
+    document.getElementById("cartCount").textContent = window.GroceryStore.getCartCount();
+
+    // 3. Render Orders
+    const stages = [
+        "Order Placed",
+        "Confirmed",
+        "Packed",
+        "Rider Assigned",
+        "Picked Up",
+        "Out for Delivery",
+        "Delivered"
+    ];
+
+    function getBadgeClass(status) {
+        switch(status) {
+            case "Order Placed": return "status-placed";
+            case "Confirmed": return "status-confirmed";
+            case "Packed": return "status-packed";
+            case "Rider Assigned": return "status-rider-assigned";
+            case "Picked Up": return "status-picked-up";
+            case "Out for Delivery": return "status-out-for-delivery";
+            case "Delivered": return "status-delivered";
+            case "Cancelled": return "status-cancelled";
+            default: return "status-placed";
+        }
+    }
+
+    function renderOrders() {
+        const container = document.getElementById("ordersContainer");
+        const allOrders = window.GroceryStore.getOrders();
+        const userOrders = allOrders.filter(o => o.userId === user.id);
+
+        if (userOrders.length === 0) {
+            container.innerHTML = `
+                <div class="empty-orders">
+                    <div style="font-size:60px;margin-bottom:12px;">📦</div>
+                    <h2 style="color:#222;font-size:22px;margin-bottom:8px;">No orders found</h2>
+                    <p style="color:#777;margin-bottom:20px;">You haven't placed any orders with GroceryGo yet.</p>
+                    <a href="dashboard.html" class="primary-btn" style="text-decoration:none;display:inline-block;">
+                        Start Shopping Now →
+                    </a>
+                </div>
+            `;
+            return;
+        }
+
+        container.innerHTML = "";
+
+        // Display newest first
+        userOrders.slice().reverse().forEach(order => {
+            const card = document.createElement("div");
+            card.className = "order-card";
+
+            const isCancelled = order.status === "Cancelled";
+            const currentStageIndex = stages.indexOf(order.status);
+            const canCancel = ["Order Placed", "Confirmed", "Packed"].includes(order.status);
+
+            // Build Timeline Steps
+            let timelineHTML = "";
+            if (!isCancelled) {
+                timelineHTML = `
+                    <div class="tracking-container">
+                        <div class="tracking-title">Live Order Tracking</div>
+                        <div class="timeline-steps">
+                            ${stages.map((stageName, idx) => {
+                                let stepClass = "";
+                                if (idx < currentStageIndex) stepClass = "completed";
+                                else if (idx === currentStageIndex) stepClass = "active";
+
+                                return `
+                                    <div class="timeline-step ${stepClass}">
+                                        <div class="step-circle">${idx < currentStageIndex ? "✓" : (idx + 1)}</div>
+                                        <span class="step-label">${stageName}</span>
+                                    </div>
+                                `;
+                            }).join("")}
+                        </div>
+                    </div>
+                `;
+            } else {
+                timelineHTML = `
+                    <div style="background:#fdf2f2;border:1px solid #f9d2d2;border-radius:8px;padding:12px 16px;margin:16px 0;color:#c81e1e;font-size:13px;display:flex;align-items:center;gap:8px;">
+                        <span>⚠️</span> This order was <strong>Cancelled</strong>. Items and payment status have been released.
+                    </div>
+                `;
+            }
+
+            // Rider Info Banner (Section 32)
+            let riderHTML = "";
+            if (order.riderName && !isCancelled) {
+                riderHTML = `
+                    <div class="rider-banner">
+                        <div class="rider-profile-side">
+                            <div class="rider-avatar">🛵</div>
+                            <div class="rider-details">
+                                <h4>Delivery Partner: ${order.riderName}</h4>
+                                <p>Vehicle: <strong>${order.riderVehicle || "Delivery Bike"}</strong> • Status: <strong>${order.status}</strong></p>
+                            </div>
+                        </div>
+                        ${order.riderPhone ? `<a href="tel:${order.riderPhone}" class="rider-phone-btn">📞 Call Partner (${order.riderPhone})</a>` : ""}
+                    </div>
+                `;
+            }
+
+            // Items List
+            let itemsHTML = "";
+            order.items.forEach(item => {
+                itemsHTML += `
+                    <div class="order-item-line">
+                        <span>${item.icon || "🛒"} <strong>${item.name}</strong> × ${item.quantity} (${item.unit || "unit"})</span>
+                        <strong>₹${Number(item.price) * Number(item.quantity)}</strong>
+                    </div>
+                `;
+            });
+
+            card.innerHTML = `
+                <div class="order-top">
+                    <div class="order-id-group">
+                        <strong>Order #${order.id}</strong>
+                        <small>Placed on ${order.orderDate} • Mode: ${order.paymentMethod}</small>
+                    </div>
+                    <span class="status-badge ${getBadgeClass(order.status)}">${order.status}</span>
+                </div>
+
+                ${timelineHTML}
+
+                ${riderHTML}
+
+                <div class="order-items-box">
+                    ${itemsHTML}
+                </div>
+
+                <div class="order-bottom">
+                    <div class="order-address-snippet">
+                        <strong>Delivering to:</strong> ${order.customerName}, ${order.address}, ${order.city} - ${order.pincode}
+                    </div>
+
+                    <div class="order-actions">
+                        ${canCancel ? `<button class="cancel-order-btn" onclick="handleCancelOrder('${order.id}')">Cancel Order</button>` : ""}
+                        <div>
+                            <span style="font-size:12px;color:#777;display:block;text-align:right;">Total Amount</span>
+                            <span class="order-total-amount">₹${order.total}</span>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            container.appendChild(card);
+        });
+    }
+
+    // 4. Cancel Handler
+    window.handleCancelOrder = function(orderId) {
+        if (confirm("Are you sure you want to cancel this order? This action cannot be undone.")) {
+            const res = window.GroceryStore.cancelOrder(orderId);
+            if (res.success) {
+                alert(res.message);
+                renderOrders();
+            } else {
+                alert(res.message);
+            }
+        }
+    };
+
+    renderOrders();
+})();
+</script>
+
+</body>
+</html>

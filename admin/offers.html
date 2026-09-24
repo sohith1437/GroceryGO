@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GroceryGo Admin - Offers & Discounts</title>
+    <link rel="stylesheet" href="../style.css">
+    <link rel="stylesheet" href="../admin.css">
+</head>
+
+<body>
+
+<!-- ================= ADMIN NAVBAR ================= -->
+<header class="admin-navbar">
+    <div class="admin-navbar-inner">
+        <div class="admin-brand">
+            <div class="admin-logo">🛒 GroceryGo</div>
+            <span class="admin-badge">Admin Console</span>
+        </div>
+
+        <nav class="admin-nav-links">
+            <a href="dashboard.html" class="admin-nav-item">📊 Dashboard</a>
+            <a href="products.html" class="admin-nav-item">🍎 Products</a>
+            <a href="categories.html" class="admin-nav-item">🗂️ Categories</a>
+            <a href="inventory.html" class="admin-nav-item">📦 Inventory</a>
+            <a href="orders.html" class="admin-nav-item">🛍️ Orders</a>
+            <a href="riders.html" class="admin-nav-item">🛵 Riders</a>
+            <a href="users.html" class="admin-nav-item">👥 Users</a>
+            <a href="offers.html" class="admin-nav-item active">🏷️ Offers</a>
+            <a href="reports.html" class="admin-nav-item">📈 Reports</a>
+        </nav>
+
+        <div class="admin-nav-actions">
+            <div class="admin-profile-pill">
+                <span>🛡️</span>
+                <span id="adminProfileName">Admin</span>
+            </div>
+            <button class="admin-logout-btn" onclick="logout()">Logout</button>
+        </div>
+    </div>
+</header>
+
+<main class="admin-main">
+
+    <div class="admin-page-header">
+        <div>
+            <h1>🏷️ Promotional Offers & Coupon Codes</h1>
+            <p>Create customer discount codes, set minimum cart spend requirements, and boost conversion.</p>
+        </div>
+
+        <button class="header-action-btn" onclick="openAddCouponModal()">
+            + Create New Coupon
+        </button>
+    </div>
+
+    <!-- OFFERS TABLE CARD -->
+    <div class="admin-card">
+        <div class="card-title-bar">
+            <h2>Active Promotion Campaigns</h2>
+
+            <div class="search-filter-bar">
+                <input type="text" id="couponSearchInput" class="admin-search-input" placeholder="Search coupon code or description...">
+            </div>
+        </div>
+
+        <div class="table-responsive">
+            <table class="admin-table">
+                <thead>
+                    <tr>
+                        <th>Code</th>
+                        <th>Offer Campaign</th>
+                        <th>Discount Value</th>
+                        <th>Minimum Cart Spend</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="couponsTableBody">
+                    <!-- Populated dynamically -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+</main>
+
+<!-- ADD / EDIT COUPON MODAL -->
+<div id="couponModal" class="modal-overlay" onclick="closeCouponModal(event)">
+    <div class="modal-container" style="max-width:500px;" onclick="event.stopPropagation()">
+        <div class="modal-header-bar">
+            <h3 id="couponModalTitle">Create Coupon Code</h3>
+            <button class="modal-close-btn" onclick="closeCouponModal()">✕</button>
+        </div>
+
+        <form id="couponForm">
+            <div class="modal-body-content">
+                <input type="hidden" id="editCouponCode">
+
+                <div class="modal-form-group">
+                    <label for="couponCode">Coupon Code *</label>
+                    <input type="text" id="couponCode" required placeholder="e.g. FESTIVE150" style="text-transform:uppercase;">
+                </div>
+
+                <div class="modal-form-group">
+                    <label for="couponDesc">Campaign Description *</label>
+                    <input type="text" id="couponDesc" required placeholder="e.g. ₹150 OFF on orders above ₹600">
+                </div>
+
+                <div class="modal-form-group">
+                    <label for="couponDiscount">Discount Amount (₹) *</label>
+                    <input type="number" id="couponDiscount" required min="10" step="5" placeholder="e.g. 100">
+                </div>
+
+                <div class="modal-form-group">
+                    <label for="couponMinOrder">Minimum Order Subtotal (₹) *</label>
+                    <input type="number" id="couponMinOrder" required min="50" step="10" placeholder="e.g. 500">
+                </div>
+
+                <div class="modal-form-group">
+                    <label style="display:flex;align-items:center;gap:8px;cursor:pointer;">
+                        <input type="checkbox" id="couponActive" checked style="width:18px;height:18px;accent-color:#19a463;">
+                        <span>Active for checkout redemptions</span>
+                    </label>
+                </div>
+            </div>
+
+            <div class="modal-footer-bar">
+                <button type="button" class="modal-cancel-btn" onclick="closeCouponModal()">Cancel</button>
+                <button type="submit" class="modal-submit-btn">Save Coupon</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- SCRIPTS -->
+<script src="../store.js"></script>
+<script src="../auth.js"></script>
+
+<script>
+(function() {
+    // 1. Guard Page
+    const admin = window.GroceryAuth.protectPage("admin");
+    if (!admin) return;
+
+    document.getElementById("adminProfileName").textContent = admin.name || "Administrator";
+
+    const tableBody = document.getElementById("couponsTableBody");
+    const searchInput = document.getElementById("couponSearchInput");
+
+    // 2. Render Coupons
+    function renderCoupons() {
+        const coupons = window.GroceryStore.getCoupons();
+        const query = searchInput.value.toLowerCase().trim();
+
+        const filtered = coupons.filter(c =>
+            c.code.toLowerCase().includes(query) || (c.description && c.description.toLowerCase().includes(query))
+        );
+
+        tableBody.innerHTML = "";
+
+        if (filtered.length === 0) {
+            tableBody.innerHTML = `<tr><td colspan="6" style="text-align:center;padding:30px;color:#888;">No coupons found matching your search.</td></tr>`;
+            return;
+        }
+
+        filtered.forEach(c => {
+            const tr = document.createElement("tr");
+
+            const statusPill = c.active
+                ? '<span class="pill pill-green">Active</span>'
+                : '<span class="pill pill-gray">Disabled</span>';
+
+            tr.innerHTML = `
+                <td><strong style="color:#19a463;font-size:15px;letter-spacing:1px;background:#e9f8ef;padding:4px 8px;border-radius:6px;">${c.code}</strong></td>
+                <td>${c.description}</td>
+                <td><strong style="color:#1a2a1e;">₹${c.discount} OFF</strong></td>
+                <td>₹${c.minOrder}</td>
+                <td>${statusPill}</td>
+                <td>
+                    <div class="action-btn-group">
+                        <button class="tbl-btn tbl-btn-edit" onclick="openEditCouponModal('${c.code}')">Edit</button>
+                        <button class="tbl-btn ${c.active ? 'tbl-btn-danger' : 'tbl-btn-assign'}" onclick="toggleCouponStatus('${c.code}')">
+                            ${c.active ? 'Disable' : 'Enable'}
+                        </button>
+                        <button class="tbl-btn tbl-btn-danger" onclick="deleteCoupon('${c.code}')">Delete</button>
+                    </div>
+                </td>
+            `;
+
+            tableBody.appendChild(tr);
+        });
+    }
+
+    // 3. Modal Handlers
+    window.openAddCouponModal = function() {
+        document.getElementById("couponModalTitle").textContent = "Create Coupon Code";
+        document.getElementById("editCouponCode").value = "";
+        document.getElementById("couponCode").value = "";
+        document.getElementById("couponCode").readOnly = false;
+        document.getElementById("couponDesc").value = "";
+        document.getElementById("couponDiscount").value = "100";
+        document.getElementById("couponMinOrder").value = "500";
+        document.getElementById("couponActive").checked = true;
+        document.getElementById("couponModal").style.display = "flex";
+    };
+
+    window.openEditCouponModal = function(code) {
+        const coupons = window.GroceryStore.getCoupons();
+        const c = coupons.find(item => item.code.toUpperCase() === code.toUpperCase());
+        if (!c) return;
+
+        document.getElementById("couponModalTitle").textContent = `Edit Coupon: ${c.code}`;
+        document.getElementById("editCouponCode").value = c.code;
+        document.getElementById("couponCode").value = c.code;
+        document.getElementById("couponCode").readOnly = true;
+        document.getElementById("couponDesc").value = c.description;
+        document.getElementById("couponDiscount").value = c.discount;
+        document.getElementById("couponMinOrder").value = c.minOrder;
+        document.getElementById("couponActive").checked = c.active;
+        document.getElementById("couponModal").style.display = "flex";
+    };
+
+    window.closeCouponModal = function(e) {
+        if (e && e.target !== e.currentTarget && !e.target.classList.contains("modal-close-btn") && !e.target.classList.contains("modal-cancel-btn")) {
+            return;
+        }
+        document.getElementById("couponModal").style.display = "none";
+    };
+
+    // 4. Save Form
+    document.getElementById("couponForm").addEventListener("submit", function(e) {
+        e.preventDefault();
+
+        const editCode = document.getElementById("editCouponCode").value;
+        const code = document.getElementById("couponCode").value.trim().toUpperCase();
+        const description = document.getElementById("couponDesc").value.trim();
+        const discount = Number(document.getElementById("couponDiscount").value);
+        const minOrder = Number(document.getElementById("couponMinOrder").value);
+        const active = document.getElementById("couponActive").checked;
+
+        const coupons = window.GroceryStore.getCoupons();
+
+        if (editCode) {
+            const c = coupons.find(item => item.code === editCode);
+            if (c) {
+                c.description = description;
+                c.discount = discount;
+                c.minOrder = minOrder;
+                c.active = active;
+            }
+        } else {
+            if (coupons.some(item => item.code === code)) {
+                alert(`Coupon '${code}' already exists.`);
+                return;
+            }
+            coupons.push({
+                code,
+                description,
+                discount,
+                minOrder,
+                active
+            });
+        }
+
+        window.GroceryStore.saveCoupons(coupons);
+        closeCouponModal();
+        renderCoupons();
+    });
+
+    // 5. Toggle & Delete
+    window.toggleCouponStatus = function(code) {
+        const coupons = window.GroceryStore.getCoupons();
+        const c = coupons.find(item => item.code === code);
+        if (c) {
+            c.active = !c.active;
+            window.GroceryStore.saveCoupons(coupons);
+            renderCoupons();
+        }
+    };
+
+    window.deleteCoupon = function(code) {
+        if (confirm(`Are you sure you want to delete coupon '${code}'?`)) {
+            let coupons = window.GroceryStore.getCoupons();
+            coupons = coupons.filter(item => item.code !== code);
+            window.GroceryStore.saveCoupons(coupons);
+            renderCoupons();
+        }
+    };
+
+    searchInput.addEventListener("input", renderCoupons);
+    renderCoupons();
+})();
+</script>
+
+</body>
+</html>

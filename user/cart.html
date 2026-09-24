@@ -1,0 +1,599 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GroceryGo - Shopping Cart</title>
+    <link rel="stylesheet" href="../style.css">
+
+    <style>
+        .cart-page {
+            padding: 40px 7%;
+            min-height: 80vh;
+        }
+
+        .cart-header {
+            margin-bottom: 28px;
+        }
+
+        .cart-header h1 {
+            font-size: 30px;
+            color: #1a2a1e;
+            margin-bottom: 6px;
+        }
+
+        .cart-header p {
+            color: #666;
+            font-size: 14px;
+        }
+
+        .cart-layout {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 30px;
+            align-items: flex-start;
+        }
+
+        .cart-table-card,
+        .cart-summary-card {
+            background: #ffffff;
+            border: 1px solid #e8eee9;
+            border-radius: 14px;
+            padding: 24px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.03);
+        }
+
+        .cart-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-bottom: 16px;
+            border-bottom: 1px solid #f0f4f1;
+            margin-bottom: 16px;
+        }
+
+        .cart-card-header h2 {
+            font-size: 18px;
+            color: #222;
+        }
+
+        .clear-cart-btn {
+            background: none;
+            border: none;
+            color: #d9534f;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            padding: 4px 8px;
+            border-radius: 4px;
+        }
+
+        .clear-cart-btn:hover {
+            background: #fdf2f2;
+        }
+
+        .cart-item-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+            padding: 16px 0;
+            border-bottom: 1px solid #f2f6f3;
+        }
+
+        .cart-item-row:last-child {
+            border-bottom: none;
+        }
+
+        .cart-item-info {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            flex: 1;
+        }
+
+        .cart-item-icon {
+            width: 60px;
+            height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #f4faf6;
+            border-radius: 10px;
+            font-size: 32px;
+            flex-shrink: 0;
+        }
+
+        .cart-item-details strong {
+            display: block;
+            font-size: 15px;
+            color: #222;
+            margin-bottom: 2px;
+        }
+
+        .cart-item-details small {
+            display: block;
+            color: #777;
+            font-size: 12px;
+            margin-bottom: 4px;
+        }
+
+        .cart-item-details .price {
+            color: #19a463;
+            font-weight: 700;
+            font-size: 14px;
+        }
+
+        .qty-controls {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: #f7faf8;
+            padding: 4px 10px;
+            border-radius: 8px;
+            border: 1px solid #e2ebe4;
+        }
+
+        .qty-btn {
+            width: 28px;
+            height: 28px;
+            border: none;
+            background: #ffffff;
+            color: #222;
+            border-radius: 6px;
+            font-weight: bold;
+            font-size: 16px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            transition: all 0.15s;
+        }
+
+        .qty-btn:hover {
+            background: #19a463;
+            color: white;
+        }
+
+        .qty-value {
+            font-weight: 700;
+            font-size: 14px;
+            min-width: 20px;
+            text-align: center;
+        }
+
+        .cart-item-total {
+            text-align: right;
+            min-width: 80px;
+        }
+
+        .cart-item-total strong {
+            font-size: 16px;
+            color: #1a2a1e;
+        }
+
+        .delete-btn {
+            background: none;
+            border: none;
+            color: #bbb;
+            cursor: pointer;
+            font-size: 16px;
+            padding: 4px;
+            margin-left: 8px;
+            transition: color 0.15s;
+        }
+
+        .delete-btn:hover {
+            color: #d9534f;
+        }
+
+        /* Order Summary */
+        .summary-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+            font-size: 14px;
+            color: #555;
+        }
+
+        .summary-row.discount-row {
+            color: #19a463;
+            font-weight: 600;
+        }
+
+        .summary-divider {
+            border: none;
+            border-top: 1px dashed #dbe5de;
+            margin: 18px 0;
+        }
+
+        .summary-total {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 20px;
+            font-weight: 800;
+            color: #1a2a1e;
+            margin-bottom: 24px;
+        }
+
+        .summary-total .total-amount {
+            color: #19a463;
+        }
+
+        .delivery-note {
+            background: #f4faf6;
+            border: 1px solid #d6ece0;
+            border-radius: 8px;
+            padding: 10px 12px;
+            font-size: 12px;
+            color: #1e7046;
+            margin-bottom: 18px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        /* Coupon Box */
+        .coupon-box {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 20px;
+        }
+
+        .coupon-box input {
+            flex: 1;
+            padding: 10px 12px;
+            border: 1px solid #dbe2dd;
+            border-radius: 8px;
+            font-size: 13px;
+            text-transform: uppercase;
+            outline: none;
+        }
+
+        .coupon-box input:focus {
+            border-color: #19a463;
+        }
+
+        .coupon-apply-btn {
+            padding: 10px 16px;
+            border: 1px solid #19a463;
+            background: #fff;
+            color: #19a463;
+            border-radius: 8px;
+            font-weight: 700;
+            font-size: 13px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .coupon-apply-btn:hover {
+            background: #19a463;
+            color: #fff;
+        }
+
+        /* GroceryGo Componentized Checkout CTA */
+        .checkout-cta-btn {
+            width: 100%;
+            padding: 15px 20px;
+            background: linear-gradient(135deg, #19a463, #158b50);
+            border: none;
+            border-radius: 10px;
+            color: white;
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            box-shadow: 0 8px 20px rgba(25, 164, 99, 0.25);
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            letter-spacing: 0.3px;
+        }
+
+        .checkout-cta-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 25px rgba(25, 164, 99, 0.35);
+        }
+
+        .empty-cart-state {
+            text-align: center;
+            padding: 60px 20px;
+        }
+
+        .empty-cart-state .icon {
+            font-size: 70px;
+            margin-bottom: 12px;
+        }
+
+        .empty-cart-state h2 {
+            font-size: 22px;
+            color: #222;
+            margin-bottom: 6px;
+        }
+
+        .empty-cart-state p {
+            color: #777;
+            font-size: 14px;
+            margin-bottom: 24px;
+        }
+
+        @media (max-width: 850px) {
+            .cart-layout {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<!-- ================= NAVBAR ================= -->
+<header class="navbar">
+    <div class="logo">
+        🛒 <span>GroceryGo</span>
+    </div>
+
+    <div class="nav-actions">
+        <a href="dashboard.html" class="login-link">Shop</a>
+        <a href="orders.html" class="login-link">My Orders</a>
+        <a href="cart.html" class="cart-button" style="background:#148550;">
+            🛒 Cart
+            <span id="cartCount">0</span>
+        </a>
+        <a href="profile.html" class="login-link">👤 Profile</a>
+        <button type="button" onclick="logout()" class="register-link" style="border:none;background:none;cursor:pointer;">
+            Logout
+        </button>
+    </div>
+</header>
+
+<main class="cart-page">
+
+    <div class="cart-header">
+        <h1>🛒 Your Shopping Cart</h1>
+        <p>Review items in your cart and proceed to checkout.</p>
+    </div>
+
+    <div class="cart-layout" id="cartLayout">
+
+        <!-- CART ITEMS LIST -->
+        <div class="cart-table-card">
+            <div class="cart-card-header">
+                <h2>Cart Items (<span id="cartItemCount">0</span>)</h2>
+                <button class="clear-cart-btn" onclick="clearWholeCart()">Clear All</button>
+            </div>
+
+            <div id="cartItemsContainer">
+                <!-- Dynamically rendered -->
+            </div>
+        </div>
+
+        <!-- ORDER SUMMARY -->
+        <div class="cart-summary-card">
+            <div class="cart-card-header">
+                <h2>Order Summary</h2>
+            </div>
+
+            <!-- Coupon Box -->
+            <div class="coupon-box">
+                <input type="text" id="couponCodeInput" placeholder="Coupon Code (e.g. GROCERY100)">
+                <button class="coupon-apply-btn" onclick="applyCouponCode()">Apply</button>
+            </div>
+            <p id="couponFeedback" style="font-size:12px;margin-top:-14px;margin-bottom:14px;min-height:16px;"></p>
+
+            <div class="summary-row">
+                <span>Subtotal</span>
+                <strong id="summarySubtotal">₹0</strong>
+            </div>
+
+            <div class="summary-row" id="discountRow" style="display:none;">
+                <span>Coupon Discount</span>
+                <strong id="summaryDiscount" style="color:#19a463;">- ₹0</strong>
+            </div>
+
+            <div class="summary-row">
+                <span>Estimated Delivery</span>
+                <strong id="summaryDelivery">₹0</strong>
+            </div>
+
+            <div class="delivery-note" id="deliveryNote">
+                ⚡ Add groceries worth ₹500 or more for <strong>FREE Delivery!</strong>
+            </div>
+
+            <hr class="summary-divider">
+
+            <div class="summary-total">
+                <span>Total Amount</span>
+                <span class="total-amount" id="summaryTotal">₹0</span>
+            </div>
+
+            <!-- GroceryGo Component CTA -->
+            <button class="checkout-cta-btn" onclick="goToCheckout()">
+                Proceed to Checkout →
+            </button>
+        </div>
+
+    </div>
+
+</main>
+
+<!-- SCRIPTS -->
+<script src="../store.js"></script>
+<script src="../auth.js"></script>
+
+<script>
+(function() {
+    // 1. Guard Page
+    const user = window.GroceryAuth.protectPage("user");
+    if (!user) return;
+
+    let appliedCouponCode = "";
+
+    // 2. Render Cart
+    function renderCart() {
+        const cart = window.GroceryStore.getCart();
+        const container = document.getElementById("cartItemsContainer");
+        const cartLayout = document.getElementById("cartLayout");
+        const countSpan = document.getElementById("cartCount");
+        const cartItemCount = document.getElementById("cartItemCount");
+
+        const totalItemsCount = window.GroceryStore.getCartCount();
+        if (countSpan) countSpan.textContent = totalItemsCount;
+        if (cartItemCount) cartItemCount.textContent = totalItemsCount;
+
+        if (cart.length === 0) {
+            cartLayout.innerHTML = `
+                <div class="cart-table-card" style="grid-column: 1 / -1;">
+                    <div class="empty-cart-state">
+                        <div class="icon">🛒</div>
+                        <h2>Your cart is empty</h2>
+                        <p>Explore our fresh fruits, vegetables, dairy and everyday staples.</p>
+                        <a href="dashboard.html" class="primary-btn" style="text-decoration:none;display:inline-block;">
+                            Start Shopping Now →
+                        </a>
+                    </div>
+                </div>
+            `;
+            return;
+        }
+
+        container.innerHTML = "";
+
+        cart.forEach(item => {
+            const row = document.createElement("div");
+            row.className = "cart-item-row";
+
+            const itemTotalPrice = Number(item.price) * Number(item.quantity);
+
+            row.innerHTML = `
+                <div class="cart-item-info">
+                    <div class="cart-item-icon">${item.icon || "🛒"}</div>
+                    <div class="cart-item-details">
+                        <strong>${item.name}</strong>
+                        <small>${item.category || ""} • ${item.unit || "unit"}</small>
+                        <span class="price">₹${item.price} each</span>
+                    </div>
+                </div>
+
+                <div class="qty-controls">
+                    <button class="qty-btn" onclick="updateItemQuantity(${item.id}, -1)">−</button>
+                    <span class="qty-value">${item.quantity}</span>
+                    <button class="qty-btn" onclick="updateItemQuantity(${item.id}, 1)">+</button>
+                </div>
+
+                <div class="cart-item-total">
+                    <strong>₹${itemTotalPrice}</strong>
+                    <button class="delete-btn" title="Remove item" onclick="removeItemFromCart(${item.id})">🗑️</button>
+                </div>
+            `;
+
+            container.appendChild(row);
+        });
+
+        updateSummaryDisplay();
+    }
+
+    // 3. Update Summary Calculations
+    function updateSummaryDisplay() {
+        const totals = window.GroceryStore.calculateTotals(appliedCouponCode);
+
+        document.getElementById("summarySubtotal").textContent = `₹${totals.subtotal}`;
+        document.getElementById("summaryDelivery").textContent = totals.deliveryFee === 0 ? "FREE" : `₹${totals.deliveryFee}`;
+        document.getElementById("summaryTotal").textContent = `₹${totals.total}`;
+
+        const discountRow = document.getElementById("discountRow");
+        const summaryDiscount = document.getElementById("summaryDiscount");
+        if (totals.discount > 0) {
+            discountRow.style.display = "flex";
+            discountRow.className = "summary-row discount-row";
+            summaryDiscount.textContent = `- ₹${totals.discount} (${totals.appliedCoupon.code})`;
+        } else {
+            discountRow.style.display = "none";
+        }
+
+        const deliveryNote = document.getElementById("deliveryNote");
+        if (deliveryNote) {
+            if (totals.subtotal >= 500) {
+                deliveryNote.innerHTML = "🎉 Congratulations! You have unlocked <strong>FREE Delivery</strong>.";
+                deliveryNote.style.background = "#e6f6ed";
+                deliveryNote.style.borderColor = "#b5e5cb";
+            } else {
+                const diff = 500 - totals.subtotal;
+                deliveryNote.innerHTML = `⚡ Add groceries worth <strong>₹${diff}</strong> more for <strong>FREE Delivery!</strong>`;
+                deliveryNote.style.background = "#f4faf6";
+                deliveryNote.style.borderColor = "#d6ece0";
+            }
+        }
+    }
+
+    // 4. Quantity & Remove Handlers
+    window.updateItemQuantity = function(id, delta) {
+        window.GroceryStore.updateCartQuantity(id, delta);
+        renderCart();
+    };
+
+    window.removeItemFromCart = function(id) {
+        window.GroceryStore.removeFromCart(id);
+        renderCart();
+    };
+
+    window.clearWholeCart = function() {
+        if (confirm("Are you sure you want to clear your cart?")) {
+            window.GroceryStore.clearCart();
+            renderCart();
+        }
+    };
+
+    // 5. Coupon Handling
+    window.applyCouponCode = function() {
+        const input = document.getElementById("couponCodeInput");
+        const feedback = document.getElementById("couponFeedback");
+        const code = input.value.trim().toUpperCase();
+
+        if (!code) {
+            feedback.textContent = "Please enter a coupon code.";
+            feedback.style.color = "#d9534f";
+            return;
+        }
+
+        const totals = window.GroceryStore.calculateTotals(code);
+        if (totals.appliedCoupon) {
+            appliedCouponCode = code;
+            feedback.textContent = `Coupon '${code}' applied! You saved ₹${totals.discount}.`;
+            feedback.style.color = "#19a463";
+            sessionStorage.setItem("appliedCouponCode", code);
+            updateSummaryDisplay();
+        } else {
+            feedback.textContent = `Invalid coupon or minimum order requirement not met.`;
+            feedback.style.color = "#d9534f";
+        }
+    };
+
+    // 6. Proceed to Checkout
+    window.goToCheckout = function() {
+        const cart = window.GroceryStore.getCart();
+        if (cart.length === 0) {
+            alert("Your cart is empty. Add items to proceed.");
+            return;
+        }
+        window.location.href = "checkout.html";
+    };
+
+    // Restore saved coupon if any
+    const savedCoupon = sessionStorage.getItem("appliedCouponCode");
+    if (savedCoupon) {
+        appliedCouponCode = savedCoupon;
+        document.getElementById("couponCodeInput").value = savedCoupon;
+    }
+
+    renderCart();
+})();
+</script>
+
+</body>
+</html>

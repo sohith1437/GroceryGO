@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GroceryGo Admin - Operations Dashboard</title>
+    <link rel="stylesheet" href="../style.css">
+    <link rel="stylesheet" href="../admin.css">
+</head>
+
+<body>
+
+<!-- ================= ADMIN NAVBAR ================= -->
+<header class="admin-navbar">
+    <div class="admin-navbar-inner">
+        <div class="admin-brand">
+            <div class="admin-logo">🛒 GroceryGo</div>
+            <span class="admin-badge">Admin Console</span>
+        </div>
+
+        <nav class="admin-nav-links">
+            <a href="dashboard.html" class="admin-nav-item active">📊 Dashboard</a>
+            <a href="products.html" class="admin-nav-item">🍎 Products</a>
+            <a href="categories.html" class="admin-nav-item">🗂️ Categories</a>
+            <a href="inventory.html" class="admin-nav-item">📦 Inventory</a>
+            <a href="orders.html" class="admin-nav-item">🛍️ Orders</a>
+            <a href="riders.html" class="admin-nav-item">🛵 Riders</a>
+            <a href="users.html" class="admin-nav-item">👥 Users</a>
+            <a href="offers.html" class="admin-nav-item">🏷️ Offers</a>
+            <a href="reports.html" class="admin-nav-item">📈 Reports</a>
+        </nav>
+
+        <div class="admin-nav-actions">
+            <div class="admin-profile-pill">
+                <span>🛡️</span>
+                <span id="adminProfileName">Admin</span>
+            </div>
+            <button class="admin-logout-btn" onclick="logout()">Logout</button>
+        </div>
+    </div>
+</header>
+
+<main class="admin-main">
+
+    <!-- PAGE HEADER -->
+    <div class="admin-page-header">
+        <div>
+            <h1>Executive Operations Dashboard</h1>
+            <p>Real-time overview of catalog, orders, deliveries, inventory, and revenue metrics.</p>
+        </div>
+
+        <div style="display:flex;gap:10px;">
+            <a href="orders.html" class="header-action-btn">
+                ⚡ View Active Orders
+            </a>
+            <a href="products.html" class="header-action-btn" style="background:#2c3e32;">
+                + Add Product
+            </a>
+        </div>
+    </div>
+
+    <!-- METRICS CARDS GRID (Section 19) -->
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="stat-top">
+                <div class="stat-icon icon-green">💰</div>
+                <span class="pill pill-green">Revenue</span>
+            </div>
+            <div class="stat-val" id="statRevenue">₹0</div>
+            <div class="stat-label">Total Realized Revenue</div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-top">
+                <div class="stat-icon icon-blue">🛍️</div>
+                <span class="pill pill-blue">Orders</span>
+            </div>
+            <div class="stat-val" id="statTotalOrders">0</div>
+            <div class="stat-label">Total Placed Orders</div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-top">
+                <div class="stat-icon icon-amber">⏳</div>
+                <span class="pill pill-amber">Pending</span>
+            </div>
+            <div class="stat-val" id="statPendingOrders">0</div>
+            <div class="stat-label">Pending / In Progress</div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-top">
+                <div class="stat-icon icon-green">✅</div>
+                <span class="pill pill-green">Delivered</span>
+            </div>
+            <div class="stat-val" id="statDeliveredOrders">0</div>
+            <div class="stat-label">Delivered Orders</div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-top">
+                <div class="stat-icon icon-red">❌</div>
+                <span class="pill pill-red">Cancelled</span>
+            </div>
+            <div class="stat-val" id="statCancelledOrders">0</div>
+            <div class="stat-label">Cancelled Orders</div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-top">
+                <div class="stat-icon icon-purple">🍎</div>
+                <span class="pill pill-purple">Catalog</span>
+            </div>
+            <div class="stat-val" id="statTotalProducts">0</div>
+            <div class="stat-label">Active Products</div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-top">
+                <div class="stat-icon icon-red">⚠️</div>
+                <span class="pill pill-red">Stock Alert</span>
+            </div>
+            <div class="stat-val" id="statLowStock">0</div>
+            <div class="stat-label">Low Stock (≤ 10 items)</div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-top">
+                <div class="stat-icon icon-green">🛵</div>
+                <span class="pill pill-green">Fleet</span>
+            </div>
+            <div class="stat-val" id="statTotalRiders">0</div>
+            <div class="stat-label"><span id="statAvailableRiders">0</span> Available Riders</div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-top">
+                <div class="stat-icon icon-amber">⚡</div>
+                <span class="pill pill-amber">Live Transit</span>
+            </div>
+            <div class="stat-val" id="statActiveDeliveries">0</div>
+            <div class="stat-label">Active Deliveries in Transit</div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-top">
+                <div class="stat-icon icon-blue">👥</div>
+                <span class="pill pill-blue">Customers</span>
+            </div>
+            <div class="stat-val" id="statTotalUsers">0</div>
+            <div class="stat-label">Registered Users</div>
+        </div>
+    </div>
+
+    <!-- RECENT ORDERS SECTION -->
+    <div class="admin-card">
+        <div class="card-title-bar">
+            <h2>Recent Customer Orders</h2>
+            <a href="orders.html" style="color:#19a463;font-weight:700;font-size:13px;">View All Orders →</a>
+        </div>
+
+        <div class="table-responsive">
+            <table class="admin-table">
+                <thead>
+                    <tr>
+                        <th>Order ID</th>
+                        <th>Customer</th>
+                        <th>Address</th>
+                        <th>Items</th>
+                        <th>Total</th>
+                        <th>Status</th>
+                        <th>Delivery Partner</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody id="recentOrdersTbody">
+                    <!-- Populated dynamically -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- TWO COLUMNS: LOW STOCK & ACTIVE DELIVERIES -->
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:24px;">
+        <!-- LOW STOCK ALERT -->
+        <div class="admin-card" style="margin-bottom:0;">
+            <div class="card-title-bar">
+                <h2>Low Stock Inventory Alerts</h2>
+                <a href="inventory.html" style="color:#19a463;font-weight:700;font-size:13px;">Manage Stock →</a>
+            </div>
+
+            <div class="table-responsive">
+                <table class="admin-table">
+                    <thead>
+                        <tr>
+                            <th>Product</th>
+                            <th>Category</th>
+                            <th>Stock</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody id="lowStockTbody">
+                        <!-- Populated dynamically -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- ACTIVE TRANSIT DELIVERIES -->
+        <div class="admin-card" style="margin-bottom:0;">
+            <div class="card-title-bar">
+                <h2>Live Transit Deliveries</h2>
+                <a href="riders.html" style="color:#19a463;font-weight:700;font-size:13px;">Rider Ops →</a>
+            </div>
+
+            <div class="table-responsive">
+                <table class="admin-table">
+                    <thead>
+                        <tr>
+                            <th>Order ID</th>
+                            <th>Rider</th>
+                            <th>Vehicle</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody id="activeTransitTbody">
+                        <!-- Populated dynamically -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+</main>
+
+<!-- SCRIPTS -->
+<script src="../store.js"></script>
+<script src="../auth.js"></script>
+
+<script>
+(function() {
+    // 1. Guard Page
+    const admin = window.GroceryAuth.protectPage("admin");
+    if (!admin) return;
+
+    document.getElementById("adminProfileName").textContent = admin.name || "Administrator";
+
+    // 2. Load and Calculate Metrics
+    const products = window.GroceryStore.getProducts();
+    const orders = window.GroceryStore.getOrders();
+    const riders = window.GroceryStore.getRiders();
+    const users = window.GroceryAuth.getUsers().filter(u => u.role === "user");
+
+    const totalOrders = orders.length;
+    const deliveredOrders = orders.filter(o => o.status === "Delivered");
+    const cancelledOrders = orders.filter(o => o.status === "Cancelled");
+    const pendingOrders = orders.filter(o => !["Delivered", "Cancelled"].includes(o.status));
+    const activeDeliveries = orders.filter(o => ["Packed", "Rider Assigned", "Picked Up", "Out for Delivery"].includes(o.status));
+
+    const totalRevenue = deliveredOrders.reduce((sum, o) => sum + Number(o.total || 0), 0);
+    const lowStockProducts = products.filter(p => p.stock <= 10);
+    const availableRiders = riders.filter(r => r.status === "Available");
+
+    // Update Stat Cards
+    document.getElementById("statRevenue").textContent = `₹${totalRevenue.toLocaleString()}`;
+    document.getElementById("statTotalOrders").textContent = totalOrders;
+    document.getElementById("statPendingOrders").textContent = pendingOrders.length;
+    document.getElementById("statDeliveredOrders").textContent = deliveredOrders.length;
+    document.getElementById("statCancelledOrders").textContent = cancelledOrders.length;
+    document.getElementById("statTotalProducts").textContent = products.length;
+    document.getElementById("statLowStock").textContent = lowStockProducts.length;
+    document.getElementById("statTotalRiders").textContent = riders.length;
+    document.getElementById("statAvailableRiders").textContent = availableRiders.length;
+    document.getElementById("statActiveDeliveries").textContent = activeDeliveries.length;
+    document.getElementById("statTotalUsers").textContent = users.length;
+
+    // Helper for pill classes
+    function getPill(status) {
+        switch(status) {
+            case "Delivered": return '<span class="pill pill-green">Delivered</span>';
+            case "Cancelled": return '<span class="pill pill-red">Cancelled</span>';
+            case "Order Placed": return '<span class="pill pill-blue">Order Placed</span>';
+            case "Confirmed": return '<span class="pill pill-purple">Confirmed</span>';
+            case "Packed": return '<span class="pill pill-amber">Packed</span>';
+            case "Rider Assigned": return '<span class="pill pill-purple">Rider Assigned</span>';
+            case "Out for Delivery": return '<span class="pill pill-amber">Out for Delivery</span>';
+            default: return `<span class="pill pill-gray">${status}</span>`;
+        }
+    }
+
+    // 3. Render Recent Orders (Top 6)
+    const recentTbody = document.getElementById("recentOrdersTbody");
+    recentTbody.innerHTML = "";
+    if (orders.length === 0) {
+        recentTbody.innerHTML = `<tr><td colspan="8" style="text-align:center;color:#888;padding:24px;">No customer orders placed yet.</td></tr>`;
+    } else {
+        orders.slice().reverse().slice(0, 6).forEach(order => {
+            const tr = document.createElement("tr");
+            tr.innerHTML = `
+                <td><strong>#${order.id}</strong></td>
+                <td>${order.customerName}<br><small style="color:#777;">${order.phone}</small></td>
+                <td><small>${order.city || "Vijayawada"}</small></td>
+                <td>${order.items.length} item(s)</td>
+                <td><strong style="color:#19a463;">₹${order.total}</strong></td>
+                <td>${getPill(order.status)}</td>
+                <td>${order.riderName ? `🛵 ${order.riderName}` : '<span style="color:#999;">Not Assigned</span>'}</td>
+                <td>
+                    <a href="orders.html" class="tbl-btn tbl-btn-view">Manage</a>
+                </td>
+            `;
+            recentTbody.appendChild(tr);
+        });
+    }
+
+    // 4. Render Low Stock Alerts
+    const lowStockTbody = document.getElementById("lowStockTbody");
+    lowStockTbody.innerHTML = "";
+    if (lowStockProducts.length === 0) {
+        lowStockTbody.innerHTML = `<tr><td colspan="4" style="text-align:center;color:#148550;padding:20px;">All items are well stocked! 👍</td></tr>`;
+    } else {
+        lowStockProducts.slice(0, 5).forEach(prod => {
+            const tr = document.createElement("tr");
+            const isOut = prod.stock <= 0;
+            tr.innerHTML = `
+                <td>${prod.icon} <strong>${prod.name}</strong></td>
+                <td>${prod.category}</td>
+                <td><strong style="color:${isOut ? '#dc2626' : '#d97706'}">${prod.stock} ${prod.unit}</strong></td>
+                <td><span class="pill ${isOut ? 'pill-red' : 'pill-amber'}">${isOut ? 'Out of Stock' : 'Low Stock'}</span></td>
+            `;
+            lowStockTbody.appendChild(tr);
+        });
+    }
+
+    // 5. Render Live Transit
+    const activeTransitTbody = document.getElementById("activeTransitTbody");
+    activeTransitTbody.innerHTML = "";
+    if (activeDeliveries.length === 0) {
+        activeTransitTbody.innerHTML = `<tr><td colspan="4" style="text-align:center;color:#888;padding:20px;">No deliveries currently in transit.</td></tr>`;
+    } else {
+        activeDeliveries.slice(0, 5).forEach(ord => {
+            const tr = document.createElement("tr");
+            tr.innerHTML = `
+                <td><strong>#${ord.id}</strong></td>
+                <td>${ord.riderName ? `🛵 ${ord.riderName}` : '<em>Pending Rider</em>'}</td>
+                <td><small>${ord.riderVehicle || 'N/A'}</small></td>
+                <td>${getPill(ord.status)}</td>
+            `;
+            activeTransitTbody.appendChild(tr);
+        });
+    }
+
+})();
+</script>
+
+</body>
+</html>

@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GroceryGo Admin - User Management</title>
+    <link rel="stylesheet" href="../style.css">
+    <link rel="stylesheet" href="../admin.css">
+</head>
+
+<body>
+
+<!-- ================= ADMIN NAVBAR ================= -->
+<header class="admin-navbar">
+    <div class="admin-navbar-inner">
+        <div class="admin-brand">
+            <div class="admin-logo">🛒 GroceryGo</div>
+            <span class="admin-badge">Admin Console</span>
+        </div>
+
+        <nav class="admin-nav-links">
+            <a href="dashboard.html" class="admin-nav-item">📊 Dashboard</a>
+            <a href="products.html" class="admin-nav-item">🍎 Products</a>
+            <a href="categories.html" class="admin-nav-item">🗂️ Categories</a>
+            <a href="inventory.html" class="admin-nav-item">📦 Inventory</a>
+            <a href="orders.html" class="admin-nav-item">🛍️ Orders</a>
+            <a href="riders.html" class="admin-nav-item">🛵 Riders</a>
+            <a href="users.html" class="admin-nav-item active">👥 Users</a>
+            <a href="offers.html" class="admin-nav-item">🏷️ Offers</a>
+            <a href="reports.html" class="admin-nav-item">📈 Reports</a>
+        </nav>
+
+        <div class="admin-nav-actions">
+            <div class="admin-profile-pill">
+                <span>🛡️</span>
+                <span id="adminProfileName">Admin</span>
+            </div>
+            <button class="admin-logout-btn" onclick="logout()">Logout</button>
+        </div>
+    </div>
+</header>
+
+<main class="admin-main">
+
+    <div class="admin-page-header">
+        <div>
+            <h1>👥 Customer Account Management</h1>
+            <p>Monitor registered users, inspect purchasing activity, and review customer order history.</p>
+        </div>
+    </div>
+
+    <!-- USERS SUMMARY CARDS -->
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="stat-top">
+                <div class="stat-icon icon-blue">👥</div>
+                <span class="pill pill-blue">Registered</span>
+            </div>
+            <div class="stat-val" id="usersTotalCount">0</div>
+            <div class="stat-label">Registered Customers</div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-top">
+                <div class="stat-icon icon-green">🛍️</div>
+                <span class="pill pill-green">Purchasing</span>
+            </div>
+            <div class="stat-val" id="usersWithOrdersCount">0</div>
+            <div class="stat-label">Active Ordering Customers</div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-top">
+                <div class="stat-icon icon-purple">📦</div>
+                <span class="pill pill-purple">Total Orders</span>
+            </div>
+            <div class="stat-val" id="totalCustomerOrders">0</div>
+            <div class="stat-label">Orders Placed by Customers</div>
+        </div>
+    </div>
+
+    <!-- USERS TABLE CARD -->
+    <div class="admin-card">
+        <div class="card-title-bar">
+            <h2>Registered Customers</h2>
+
+            <div class="search-filter-bar">
+                <input type="text" id="userSearchInput" class="admin-search-input" placeholder="Search by customer name or email...">
+            </div>
+        </div>
+
+        <div class="table-responsive">
+            <table class="admin-table">
+                <thead>
+                    <tr>
+                        <th>User ID</th>
+                        <th>Customer</th>
+                        <th>Email Address</th>
+                        <th>Role</th>
+                        <th>Orders Placed</th>
+                        <th>Total Spent</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="usersTableBody">
+                    <!-- Populated dynamically -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+</main>
+
+<!-- USER ORDER HISTORY MODAL -->
+<div id="userOrdersModal" class="modal-overlay" onclick="closeUserOrdersModal(event)">
+    <div class="modal-container" style="max-width:700px;" onclick="event.stopPropagation()">
+        <div class="modal-header-bar">
+            <h3 id="modalUserName">Customer Order History</h3>
+            <button class="modal-close-btn" onclick="closeUserOrdersModal()">✕</button>
+        </div>
+
+        <div class="modal-body-content" id="modalOrdersContent">
+            <!-- Populated dynamically -->
+        </div>
+
+        <div class="modal-footer-bar">
+            <button type="button" class="modal-cancel-btn" onclick="closeUserOrdersModal()">Close</button>
+        </div>
+    </div>
+</div>
+
+<!-- SCRIPTS -->
+<script src="../store.js"></script>
+<script src="../auth.js"></script>
+
+<script>
+(function() {
+    // 1. Guard Page
+    const admin = window.GroceryAuth.protectPage("admin");
+    if (!admin) return;
+
+    document.getElementById("adminProfileName").textContent = admin.name || "Administrator";
+
+    const tableBody = document.getElementById("usersTableBody");
+    const searchInput = document.getElementById("userSearchInput");
+
+    // 2. Render Users Table
+    function renderUsers() {
+        const allUsers = window.GroceryAuth.getUsers();
+        const customers = allUsers.filter(u => u.role === "user");
+        const allOrders = window.GroceryStore.getOrders();
+
+        document.getElementById("usersTotalCount").textContent = customers.length;
+        document.getElementById("totalCustomerOrders").textContent = allOrders.length;
+
+        // Active customers with >= 1 order
+        const userIdsWithOrders = new Set(allOrders.map(o => o.userId));
+        document.getElementById("usersWithOrdersCount").textContent = customers.filter(c => userIdsWithOrders.has(c.id)).length;
+
+        const query = searchInput.value.toLowerCase().trim();
+        const filtered = customers.filter(u =>
+            u.name.toLowerCase().includes(query) || u.email.toLowerCase().includes(query)
+        );
+
+        tableBody.innerHTML = "";
+
+        if (filtered.length === 0) {
+            tableBody.innerHTML = `<tr><td colspan="7" style="text-align:center;padding:30px;color:#888;">No customers found matching your search.</td></tr>`;
+            return;
+        }
+
+        filtered.forEach(cust => {
+            const tr = document.createElement("tr");
+
+            const custOrders = allOrders.filter(o => o.userId === cust.id);
+            const totalSpent = custOrders.reduce((sum, o) => sum + Number(o.total || 0), 0);
+
+            tr.innerHTML = `
+                <td><small style="color:#777;">${cust.id}</small></td>
+                <td>
+                    <div style="display:flex;align-items:center;gap:10px;">
+                        <span style="font-size:24px;">👤</span>
+                        <div>
+                            <strong>${cust.name}</strong>
+                            <small style="display:block;color:#777;">Customer Account</small>
+                        </div>
+                    </div>
+                </td>
+                <td>${cust.email}</td>
+                <td><span class="pill pill-blue">Customer</span></td>
+                <td><strong>${custOrders.length}</strong> order(s)</td>
+                <td><strong style="color:#19a463;">₹${totalSpent.toLocaleString()}</strong></td>
+                <td>
+                    <button class="tbl-btn tbl-btn-view" onclick="viewCustomerOrders('${cust.id}', '${cust.name}')">
+                        📦 View Orders (${custOrders.length})
+                    </button>
+                </td>
+            `;
+
+            tableBody.appendChild(tr);
+        });
+    }
+
+    // 3. View Customer Orders Modal
+    window.viewCustomerOrders = function(userId, userName) {
+        document.getElementById("modalUserName").textContent = `Orders for ${userName}`;
+        const container = document.getElementById("modalOrdersContent");
+        const orders = window.GroceryStore.getOrders().filter(o => o.userId === userId);
+
+        if (orders.length === 0) {
+            container.innerHTML = `<p style="text-align:center;color:#888;padding:20px;">This customer hasn't placed any orders yet.</p>`;
+        } else {
+            let html = "";
+            orders.slice().reverse().forEach(o => {
+                html += `
+                    <div style="border:1px solid #eef2ef;border-radius:10px;padding:16px;margin-bottom:14px;background:#fafcfa;">
+                        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+                            <strong>Order #${o.id}</strong>
+                            <span class="pill ${o.status === 'Delivered' ? 'pill-green' : (o.status === 'Cancelled' ? 'pill-red' : 'pill-amber')}">${o.status}</span>
+                        </div>
+                        <p style="font-size:12px;color:#777;margin-bottom:8px;">Date: ${o.orderDate} • Total: <strong style="color:#19a463;">₹${o.total}</strong> • ${o.paymentMethod}</p>
+                        <div style="font-size:13px;color:#555;">
+                            ${o.items.map(i => `${i.icon || '🛒'} ${i.name} × ${i.quantity}`).join(", ")}
+                        </div>
+                    </div>
+                `;
+            });
+            container.innerHTML = html;
+        }
+
+        document.getElementById("userOrdersModal").style.display = "flex";
+    };
+
+    window.closeUserOrdersModal = function(e) {
+        if (e && e.target !== e.currentTarget && !e.target.classList.contains("modal-close-btn") && !e.target.classList.contains("modal-cancel-btn")) {
+            return;
+        }
+        document.getElementById("userOrdersModal").style.display = "none";
+    };
+
+    searchInput.addEventListener("input", renderUsers);
+    renderUsers();
+})();
+</script>
+
+</body>
+</html>
