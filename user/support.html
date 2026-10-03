@@ -1,0 +1,488 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GroceryGo - Customer Help & Support Desk</title>
+    <link rel="stylesheet" href="../style.css">
+
+    <style>
+        .support-page {
+            padding: 40px 7%;
+            min-height: 80vh;
+        }
+
+        .support-header {
+            margin-bottom: 30px;
+        }
+
+        .support-header h1 {
+            font-size: 30px;
+            color: #1a2a1e;
+            margin-bottom: 6px;
+        }
+
+        .support-header p {
+            color: #666;
+            font-size: 14px;
+        }
+
+        .support-grid {
+            display: grid;
+            grid-template-columns: 1.2fr 1fr;
+            gap: 30px;
+            align-items: flex-start;
+        }
+
+        .support-card {
+            background: white;
+            border: 1px solid #e8eee9;
+            border-radius: 14px;
+            padding: 26px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.03);
+            margin-bottom: 24px;
+        }
+
+        .support-card h2 {
+            font-size: 18px;
+            color: #222;
+            margin-bottom: 18px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid #f2f6f3;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .category-buttons {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .cat-btn {
+            background: #f7faf8;
+            border: 1px solid #dce4de;
+            border-radius: 8px;
+            padding: 12px 10px;
+            text-align: center;
+            font-size: 12px;
+            font-weight: 600;
+            color: #444;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .cat-btn:hover,
+        .cat-btn.active {
+            background: #e9f8ef;
+            border-color: #19a463;
+            color: #148550;
+            font-weight: 700;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+        }
+
+        .input-group {
+            margin-bottom: 16px;
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 6px;
+            font-weight: 600;
+            font-size: 13px;
+            color: #333;
+        }
+
+        .input-group input,
+        .input-group select,
+        .input-group textarea {
+            width: 100%;
+            padding: 11px 14px;
+            border: 1px solid #dbe2dd;
+            border-radius: 8px;
+            outline: none;
+            font-size: 14px;
+            background: #fafcfa;
+            transition: all 0.2s;
+        }
+
+        .input-group input:focus,
+        .input-group select:focus,
+        .input-group textarea:focus {
+            border-color: #19a463;
+            background: #fff;
+            box-shadow: 0 0 0 3px rgba(25, 164, 99, 0.1);
+        }
+
+        .input-group textarea {
+            height: 95px;
+            resize: vertical;
+        }
+
+        /* Tickets List */
+        .ticket-item {
+            border: 1px solid #eef2ee;
+            border-radius: 10px;
+            padding: 16px;
+            margin-bottom: 14px;
+            background: #fafcfa;
+        }
+
+        .ticket-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+
+        .ticket-id {
+            font-weight: 700;
+            color: #19a463;
+            font-size: 14px;
+        }
+
+        .status-badge {
+            padding: 4px 10px;
+            border-radius: 999px;
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+
+        .badge-open { background: #fef3c7; color: #92400e; }
+        .badge-progress { background: #dbeafe; color: #1e40af; }
+        .badge-resolved { background: #dcfce7; color: #166534; }
+
+        .ticket-subject {
+            font-weight: 600;
+            font-size: 14px;
+            color: #222;
+            margin-bottom: 6px;
+        }
+
+        .ticket-desc {
+            font-size: 13px;
+            color: #555;
+            line-height: 1.5;
+            margin-bottom: 10px;
+        }
+
+        .admin-reply-box {
+            background: #edf7f0;
+            border-left: 3px solid #19a463;
+            padding: 10px 12px;
+            border-radius: 0 6px 6px 0;
+            font-size: 12px;
+            color: #14532d;
+            margin-top: 8px;
+        }
+
+        .contact-channel {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            padding: 12px;
+            background: #f8faf9;
+            border-radius: 8px;
+            margin-bottom: 10px;
+        }
+
+        .contact-icon {
+            font-size: 24px;
+        }
+
+        @media (max-width: 850px) {
+            .support-grid {
+                grid-template-columns: 1fr;
+            }
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<!-- ================= NAVBAR ================= -->
+<header class="navbar">
+    <div class="logo">
+        🛒 <span>GroceryGo</span>
+    </div>
+
+    <div class="nav-actions">
+        <a href="dashboard.html" class="login-link">Shop</a>
+        <a href="orders.html" class="login-link">My Orders</a>
+        <a href="cart.html" class="cart-button">
+            🛒 Cart
+            <span id="cartCount">0</span>
+        </a>
+        <a href="support.html" class="login-link" style="color:#19a463;font-weight:bold;">🎧 Support</a>
+        <a href="profile.html" class="login-link">👤 Profile</a>
+        <button type="button" onclick="logout()" class="register-link" style="border:none;background:none;cursor:pointer;">
+            Logout
+        </button>
+    </div>
+</header>
+
+<main class="support-page">
+
+    <div class="support-header">
+        <h1>🎧 Customer Help & Support Desk</h1>
+        <p>Report issues with your groceries, deliveries, or payments, and track live support responses.</p>
+    </div>
+
+    <div class="support-grid">
+
+        <!-- CREATE SUPPORT TICKET -->
+        <div>
+            <div class="support-card">
+                <h2>📝 Raise a Support Ticket</h2>
+
+                <p style="font-size:13px;color:#666;margin-bottom:14px;">Select the department or issue category:</p>
+                <div class="category-buttons" id="catBtnContainer">
+                    <button type="button" class="cat-btn active" onclick="selectCategory('Order Issues')">📦 Order Issues</button>
+                    <button type="button" class="cat-btn" onclick="selectCategory('Item Quality')">🍎 Item Quality</button>
+                    <button type="button" class="cat-btn" onclick="selectCategory('Delivery & Partner')">🛵 Delivery & Partner</button>
+                    <button type="button" class="cat-btn" onclick="selectCategory('Payment & UPI')">💳 Payment & UPI</button>
+                    <button type="button" class="cat-btn" onclick="selectCategory('Other')">💬 Other Inquiries</button>
+                </div>
+
+                <form id="supportTicketForm">
+                    <input type="hidden" id="selectedCategory" value="Order Issues">
+
+                    <div class="form-row">
+                        <div class="input-group">
+                            <label for="userName">Full Name *</label>
+                            <input type="text" id="userName" required placeholder="Your full name">
+                        </div>
+
+                        <div class="input-group">
+                            <label for="userEmail">Email Address *</label>
+                            <input type="email" id="userEmail" required placeholder="name@domain.com">
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="input-group">
+                            <label for="relatedOrderSelect">Related Order (Optional)</label>
+                            <select id="relatedOrderSelect">
+                                <option value="">-- No specific order --</option>
+                            </select>
+                        </div>
+
+                        <div class="input-group">
+                            <label for="ticketPriority">Urgency Priority *</label>
+                            <select id="ticketPriority">
+                                <option value="Low">Low (General Inquiry)</option>
+                                <option value="Medium" selected>Medium (Standard Query)</option>
+                                <option value="High">High (Immediate Help)</option>
+                                <option value="Urgent">Urgent (Order In Transit / Missing)</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="input-group">
+                        <label for="ticketSubject">Issue Subject *</label>
+                        <input type="text" id="ticketSubject" required placeholder="Brief summary of your query or issue">
+                    </div>
+
+                    <div class="input-group">
+                        <label for="ticketDescription">Detailed Description *</label>
+                        <textarea id="ticketDescription" required placeholder="Please describe what happened, including any item names, timings, or payment references..."></textarea>
+                    </div>
+
+                    <button type="submit" class="primary-btn" style="width:100%;padding:13px;border:none;cursor:pointer;font-size:15px;font-weight:700;">
+                        🚀 Submit Support Ticket
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        <!-- RIGHT SIDE: MY TICKETS & CONTACT CHANNELS -->
+        <div>
+            <!-- MY TICKETS TRACKER -->
+            <div class="support-card">
+                <h2>📋 My Support Tickets (<span id="ticketCount">0</span>)</h2>
+
+                <div id="ticketsListContainer">
+                    <!-- Populated dynamically -->
+                </div>
+            </div>
+
+            <!-- DIRECT CONTACT INFORMATION -->
+            <div class="support-card">
+                <h2>📞 Quick Assistance</h2>
+                <div class="contact-channel">
+                    <div class="contact-icon">📱</div>
+                    <div>
+                        <strong>Customer Helpline</strong>
+                        <p style="font-size:13px;color:#666;margin:0;">+91 98765 43210 (7 AM - 11 PM Daily)</p>
+                    </div>
+                </div>
+
+                <div class="contact-channel">
+                    <div class="contact-icon">📧</div>
+                    <div>
+                        <strong>Priority Support Email</strong>
+                        <p style="font-size:13px;color:#666;margin:0;">support@grocerygo.com</p>
+                    </div>
+                </div>
+
+                <div class="contact-channel">
+                    <div class="contact-icon">📍</div>
+                    <div>
+                        <strong>Dispatch Fulfillment Hub</strong>
+                        <p style="font-size:13px;color:#666;margin:0;">Bandar Road, Vijayawada, AP - 520001</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+</main>
+
+<!-- SCRIPTS -->
+<script src="../store.js"></script>
+<script src="../auth.js"></script>
+
+<script>
+(function() {
+    // 1. Guard Page
+    const user = window.GroceryAuth.protectPage("user");
+    if (!user) return;
+
+    // 2. Update Cart Count
+    document.getElementById("cartCount").textContent = window.GroceryStore.getCartCount();
+
+    // 3. Auto-fill user details
+    if (user.name) document.getElementById("userName").value = user.name;
+    if (user.email) document.getElementById("userEmail").value = user.email;
+
+    // 4. Populate Past Orders Dropdown
+    const userOrders = window.GroceryStore.getOrders().filter(o => o.userId === user.id);
+    const orderSelect = document.getElementById("relatedOrderSelect");
+    userOrders.forEach(o => {
+        const opt = document.createElement("option");
+        opt.value = o.id;
+        opt.textContent = `Order #${o.id} (${o.orderDate} - ₹${o.total} - ${o.status})`;
+        orderSelect.appendChild(opt);
+    });
+
+    // Check URL params for prefilled order
+    const urlParams = new URLSearchParams(window.location.search);
+    const prefilledOrderId = urlParams.get("orderId");
+    if (prefilledOrderId && orderSelect) {
+        orderSelect.value = prefilledOrderId;
+    }
+
+    // Category Selector
+    window.selectCategory = function(catName) {
+        document.getElementById("selectedCategory").value = catName;
+        const btns = document.querySelectorAll(".cat-btn");
+        btns.forEach(b => {
+            if (b.textContent.includes(catName)) b.classList.add("active");
+            else b.classList.remove("active");
+        });
+    };
+
+    // 5. Render User Tickets
+    function renderUserTickets() {
+        const listContainer = document.getElementById("ticketsListContainer");
+        const countSpan = document.getElementById("ticketCount");
+        const allTickets = window.GroceryStore.getSupportTickets();
+        const userTickets = allTickets.filter(t => t.userId === user.id || t.userEmail === user.email);
+
+        countSpan.textContent = userTickets.length;
+
+        if (userTickets.length === 0) {
+            listContainer.innerHTML = `
+                <div style="text-align:center;padding:30px 10px;color:#888;">
+                    <div style="font-size:36px;margin-bottom:8px;">💌</div>
+                    <p style="font-size:13px;">No active support tickets found. We're here to help if you encounter any issue!</p>
+                </div>
+            `;
+            return;
+        }
+
+        listContainer.innerHTML = "";
+        userTickets.slice().reverse().forEach(ticket => {
+            const item = document.createElement("div");
+            item.className = "ticket-item";
+
+            let badgeClass = "badge-open";
+            if (ticket.status === "In Progress") badgeClass = "badge-progress";
+            if (ticket.status === "Resolved") badgeClass = "badge-resolved";
+
+            let adminResponseHTML = "";
+            if (ticket.adminResponse) {
+                adminResponseHTML = `
+                    <div class="admin-reply-box">
+                        <strong>🛡️ GroceryGo Support Desk Reply (${ticket.resolvedAt || "Update"}):</strong><br>
+                        ${ticket.adminResponse}
+                    </div>
+                `;
+            }
+
+            item.innerHTML = `
+                <div class="ticket-top">
+                    <span class="ticket-id">#${ticket.id}</span>
+                    <span class="status-badge ${badgeClass}">${ticket.status}</span>
+                </div>
+                <div class="ticket-subject">${ticket.subject}</div>
+                <div style="font-size:11px;color:#888;margin-bottom:6px;">
+                    Category: <strong>${ticket.category}</strong> • Priority: <strong>${ticket.priority}</strong> • ${ticket.createdAt}
+                    ${ticket.orderId ? ` • Order #${ticket.orderId}` : ""}
+                </div>
+                <div class="ticket-desc">${ticket.description}</div>
+                ${adminResponseHTML}
+            `;
+
+            listContainer.appendChild(item);
+        });
+    }
+
+    // 6. Form Submission
+    document.getElementById("supportTicketForm").addEventListener("submit", function(e) {
+        e.preventDefault();
+
+        const category = document.getElementById("selectedCategory").value;
+        const userName = document.getElementById("userName").value.trim();
+        const userEmail = document.getElementById("userEmail").value.trim();
+        const orderId = document.getElementById("relatedOrderSelect").value || null;
+        const priority = document.getElementById("ticketPriority").value;
+        const subject = document.getElementById("ticketSubject").value.trim();
+        const description = document.getElementById("ticketDescription").value.trim();
+
+        const ticket = window.GroceryStore.createSupportTicket({
+            userId: user.id,
+            userName,
+            userEmail,
+            orderId,
+            category,
+            priority,
+            subject,
+            description
+        });
+
+        alert(`Support Ticket #${ticket.id} created successfully! Our operations desk is reviewing your ticket.`);
+        document.getElementById("ticketSubject").value = "";
+        document.getElementById("ticketDescription").value = "";
+        renderUserTickets();
+    });
+
+    renderUserTickets();
+})();
+</script>
+
+</body>
+</html>

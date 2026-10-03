@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GroceryGo Admin - Customer Support Desk</title>
+    <link rel="stylesheet" href="../style.css">
+    <link rel="stylesheet" href="../admin.css">
+</head>
+
+<body>
+
+<!-- ================= ADMIN NAVBAR ================= -->
+<header class="admin-navbar">
+    <div class="admin-navbar-inner">
+        <div class="admin-brand">
+            <div class="admin-logo">🛒 GroceryGo</div>
+            <span class="admin-badge">Admin Console</span>
+        </div>
+
+        <nav class="admin-nav-links">
+            <a href="dashboard.html" class="admin-nav-item">📊 Dashboard</a>
+            <a href="products.html" class="admin-nav-item">🍎 Products</a>
+            <a href="categories.html" class="admin-nav-item">🗂️ Categories</a>
+            <a href="inventory.html" class="admin-nav-item">📦 Inventory</a>
+            <a href="orders.html" class="admin-nav-item">🛍️ Orders</a>
+            <a href="riders.html" class="admin-nav-item">🛵 Riders</a>
+            <a href="users.html" class="admin-nav-item">👥 Users</a>
+            <a href="offers.html" class="admin-nav-item">🏷️ Offers</a>
+            <a href="reports.html" class="admin-nav-item">📈 Reports</a>
+            <a href="support.html" class="admin-nav-item active">🎧 Support</a>
+            <a href="reviews.html" class="admin-nav-item">⭐ Reviews</a>
+        </nav>
+
+        <div class="admin-nav-actions">
+            <div class="admin-profile-pill">
+                <span>🛡️</span>
+                <span id="adminProfileName">Admin</span>
+            </div>
+            <button class="admin-logout-btn" onclick="logout()">Logout</button>
+        </div>
+    </div>
+</header>
+
+<main class="admin-main">
+
+    <div class="admin-page-header">
+        <div>
+            <h1>🎧 Customer Support & Ticket Desk</h1>
+            <p>Manage, investigate, respond to, and resolve customer grievances and service inquiries.</p>
+        </div>
+    </div>
+
+    <!-- METRICS -->
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="stat-top">
+                <div class="stat-icon icon-blue">📋</div>
+                <span class="pill pill-blue">Total</span>
+            </div>
+            <div class="stat-val" id="supStatTotal">0</div>
+            <div class="stat-label">All Raised Tickets</div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-top">
+                <div class="stat-icon icon-amber">⏳</div>
+                <span class="pill pill-amber">Open</span>
+            </div>
+            <div class="stat-val" id="supStatOpen">0</div>
+            <div class="stat-label">Awaiting Staff Review</div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-top">
+                <div class="stat-icon icon-purple">🔄</div>
+                <span class="pill pill-purple">In Progress</span>
+            </div>
+            <div class="stat-val" id="supStatProgress">0</div>
+            <div class="stat-label">Currently Investigating</div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-top">
+                <div class="stat-icon icon-green">✅</div>
+                <span class="pill pill-green">Resolved</span>
+            </div>
+            <div class="stat-val" id="supStatResolved">0</div>
+            <div class="stat-label">Successfully Resolved</div>
+        </div>
+    </div>
+
+    <!-- SUPPORT TICKETS TABLE CARD -->
+    <div class="admin-card">
+        <div class="card-title-bar">
+            <h2>Support Ticket Records</h2>
+
+            <div class="search-filter-bar">
+                <input type="text" id="ticketSearchInput" class="admin-search-input" placeholder="Search Ticket ID, Customer, or Order ID...">
+                <select id="ticketStatusFilter" class="admin-select">
+                    <option value="All">All Statuses</option>
+                    <option value="Open">Open</option>
+                    <option value="In Progress">In Progress</option>
+                    <option value="Resolved">Resolved</option>
+                </select>
+                <select id="ticketCategoryFilter" class="admin-select">
+                    <option value="All">All Categories</option>
+                    <option value="Order Issues">Order Issues</option>
+                    <option value="Item Quality">Item Quality</option>
+                    <option value="Delivery & Partner">Delivery & Partner</option>
+                    <option value="Payment & UPI">Payment & UPI</option>
+                    <option value="Other">Other</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="table-responsive">
+            <table class="admin-table">
+                <thead>
+                    <tr>
+                        <th>Ticket ID</th>
+                        <th>Created</th>
+                        <th>Customer</th>
+                        <th>Order Ref</th>
+                        <th>Category & Priority</th>
+                        <th>Subject & Issue</th>
+                        <th>Status</th>
+                        <th>Admin Response</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody id="ticketsTbody">
+                    <!-- Populated dynamically -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+</main>
+
+<!-- RESPOND / RESOLVE MODAL -->
+<div id="respondModal" class="gg-modal-overlay" style="display:none;">
+    <div class="gg-modal-content">
+        <button class="gg-modal-close" onclick="closeRespondModal()">×</button>
+        <h2 style="font-size:20px;color:#1a2a1e;margin-bottom:6px;">💬 Respond to Support Ticket</h2>
+        <p style="color:#666;font-size:13px;margin-bottom:16px;" id="modalTicketMeta">Ticket details</p>
+
+        <form id="respondTicketForm">
+            <input type="hidden" id="modalTicketId">
+
+            <div style="background:#f7faf8;border:1px solid #dce4de;border-radius:8px;padding:12px;margin-bottom:14px;">
+                <div style="font-size:13px;font-weight:700;color:#222;margin-bottom:4px;" id="modalSubject"></div>
+                <div style="font-size:12px;color:#555;" id="modalDescription"></div>
+            </div>
+
+            <div class="admin-form-group" style="margin-bottom:14px;">
+                <label for="modalStatusSelect" style="display:block;margin-bottom:6px;font-size:13px;font-weight:600;">Update Status *</label>
+                <select id="modalStatusSelect" required style="width:100%;padding:10px;border:1px solid #dce4de;border-radius:8px;font-size:14px;">
+                    <option value="Open">Open</option>
+                    <option value="In Progress">In Progress</option>
+                    <option value="Resolved">Resolved</option>
+                </select>
+            </div>
+
+            <div class="admin-form-group" style="margin-bottom:16px;">
+                <label for="modalResponseText" style="display:block;margin-bottom:6px;font-size:13px;font-weight:600;">Response Message to Customer *</label>
+                <textarea id="modalResponseText" required placeholder="Write a professional resolution or update message for the customer..." style="width:100%;height:100px;padding:10px;border:1px solid #dce4de;border-radius:8px;font-size:13px;"></textarea>
+            </div>
+
+            <button type="submit" class="header-action-btn" style="width:100%;padding:12px;border:none;cursor:pointer;font-size:14px;">
+                💾 Save Response & Update Status
+            </button>
+        </form>
+    </div>
+</div>
+
+<!-- SCRIPTS -->
+<script src="../store.js"></script>
+<script src="../auth.js"></script>
+
+<script>
+(function() {
+    // 1. Guard Page
+    const user = window.GroceryAuth.protectPage("admin");
+    if (!user) return;
+
+    if (user.name) {
+        document.getElementById("adminProfileName").textContent = user.name.split(" ")[0];
+    }
+
+    // 2. Render Tickets Function
+    function renderTickets() {
+        const tickets = window.GroceryStore.getSupportTickets();
+        const tbody = document.getElementById("ticketsTbody");
+
+        // Metrics
+        const total = tickets.length;
+        const open = tickets.filter(t => t.status === "Open").length;
+        const progress = tickets.filter(t => t.status === "In Progress").length;
+        const resolved = tickets.filter(t => t.status === "Resolved").length;
+
+        document.getElementById("supStatTotal").textContent = total;
+        document.getElementById("supStatOpen").textContent = open;
+        document.getElementById("supStatProgress").textContent = progress;
+        document.getElementById("supStatResolved").textContent = resolved;
+
+        const searchQuery = document.getElementById("ticketSearchInput").value.toLowerCase().trim();
+        const statusFilter = document.getElementById("ticketStatusFilter").value;
+        const categoryFilter = document.getElementById("ticketCategoryFilter").value;
+
+        const filtered = tickets.filter(t => {
+            const matchesSearch =
+                t.id.toLowerCase().includes(searchQuery) ||
+                t.userName.toLowerCase().includes(searchQuery) ||
+                t.userEmail.toLowerCase().includes(searchQuery) ||
+                (t.orderId && t.orderId.toLowerCase().includes(searchQuery)) ||
+                t.subject.toLowerCase().includes(searchQuery);
+
+            const matchesStatus = statusFilter === "All" || t.status === statusFilter;
+            const matchesCat = categoryFilter === "All" || t.category === categoryFilter;
+
+            return matchesSearch && matchesStatus && matchesCat;
+        });
+
+        tbody.innerHTML = "";
+
+        if (filtered.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="9" style="text-align:center;color:#888;padding:24px;">No support tickets match the selected criteria.</td></tr>`;
+            return;
+        }
+
+        function getStatusPill(status) {
+            if (status === "Resolved") return '<span class="pill pill-green">Resolved</span>';
+            if (status === "In Progress") return '<span class="pill pill-blue">In Progress</span>';
+            return '<span class="pill pill-amber">Open</span>';
+        }
+
+        function getPriorityPill(priority) {
+            if (priority === "Urgent") return '<span class="pill pill-red">Urgent</span>';
+            if (priority === "High") return '<span class="pill pill-amber">High</span>';
+            if (priority === "Medium") return '<span class="pill pill-blue">Medium</span>';
+            return '<span class="pill pill-gray">Low</span>';
+        }
+
+        filtered.slice().reverse().forEach(ticket => {
+            const tr = document.createElement("tr");
+            tr.innerHTML = `
+                <td><strong>#${ticket.id}</strong></td>
+                <td><small>${ticket.createdAt}</small></td>
+                <td>
+                    <strong>${ticket.userName}</strong><br>
+                    <small style="color:#666;">${ticket.userEmail}</small>
+                </td>
+                <td>
+                    ${ticket.orderId ? `<a href="orders.html" style="color:#19a463;font-weight:bold;">#${ticket.orderId}</a>` : '<span style="color:#999;">General</span>'}
+                </td>
+                <td>
+                    <strong>${ticket.category}</strong><br>
+                    ${getPriorityPill(ticket.priority)}
+                </td>
+                <td>
+                    <strong>${ticket.subject}</strong><br>
+                    <small style="color:#666;display:inline-block;max-width:240px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${ticket.description}</small>
+                </td>
+                <td>${getStatusPill(ticket.status)}</td>
+                <td>
+                    <small style="color:${ticket.adminResponse ? '#148550' : '#888'};">
+                        ${ticket.adminResponse ? `💬 "${ticket.adminResponse.slice(0, 30)}..."` : '<em>Awaiting reply</em>'}
+                    </small>
+                </td>
+                <td>
+                    <button class="tbl-btn tbl-btn-view" onclick="openRespondModal('${ticket.id}')">
+                        💬 Respond
+                    </button>
+                </td>
+            `;
+            tbody.appendChild(tr);
+        });
+    }
+
+    // Modal Operations
+    window.openRespondModal = function(ticketId) {
+        const ticket = window.GroceryStore.getSupportTickets().find(t => t.id === ticketId);
+        if (!ticket) return;
+
+        document.getElementById("modalTicketId").value = ticket.id;
+        document.getElementById("modalTicketMeta").textContent = `Ticket #${ticket.id} • Raised by ${ticket.userName} (${ticket.userEmail}) on ${ticket.createdAt}`;
+        document.getElementById("modalSubject").textContent = `${ticket.subject} [Priority: ${ticket.priority}]`;
+        document.getElementById("modalDescription").textContent = ticket.description;
+        document.getElementById("modalStatusSelect").value = ticket.status;
+        document.getElementById("modalResponseText").value = ticket.adminResponse || "";
+
+        document.getElementById("respondModal").style.display = "flex";
+    };
+
+    window.closeRespondModal = function() {
+        document.getElementById("respondModal").style.display = "none";
+    };
+
+    document.getElementById("respondTicketForm").addEventListener("submit", function(e) {
+        e.preventDefault();
+        const ticketId = document.getElementById("modalTicketId").value;
+        const status = document.getElementById("modalStatusSelect").value;
+        const adminResponse = document.getElementById("modalResponseText").value.trim();
+
+        window.GroceryStore.updateSupportTicket(ticketId, {
+            status,
+            adminResponse
+        });
+
+        closeRespondModal();
+        renderTickets();
+    });
+
+    // Listeners
+    document.getElementById("ticketSearchInput").addEventListener("input", renderTickets);
+    document.getElementById("ticketStatusFilter").addEventListener("change", renderTickets);
+    document.getElementById("ticketCategoryFilter").addEventListener("change", renderTickets);
+
+    renderTickets();
+})();
+</script>
+
+</body>
+</html>

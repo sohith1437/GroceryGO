@@ -347,6 +347,7 @@
             🛒 Cart
             <span id="cartCount">0</span>
         </a>
+        <a href="support.html" class="login-link">🎧 Support</a>
         <a href="profile.html" class="login-link">👤 Profile</a>
         <button type="button" onclick="logout()" class="register-link" style="border:none;background:none;cursor:pointer;">
             Logout
@@ -359,7 +360,7 @@
     <div class="orders-header">
         <div>
             <h1>📦 My Orders</h1>
-            <p>Track your live grocery deliveries and review past purchases.</p>
+            <p>Track your grocery deliveries in real time, review past purchases, or request customer support.</p>
         </div>
 
         <a href="dashboard.html" class="primary-btn" style="text-decoration:none;font-size:14px;padding:10px 18px;">
@@ -372,6 +373,164 @@
     </div>
 
 </main>
+
+<!-- ================= MODALS ================= -->
+
+<!-- 1. ITEM REVIEW MODAL -->
+<div id="itemReviewModal" class="gg-modal-overlay" style="display:none;">
+    <div class="gg-modal-content">
+        <button class="gg-modal-close" onclick="closeModal('itemReviewModal')">×</button>
+        <h2 style="font-size:20px;color:#1a2a1e;margin-bottom:6px;">⭐ Review Purchased Items</h2>
+        <p style="color:#666;font-size:13px;margin-bottom:16px;">Help us maintain top grocery freshness and quality.</p>
+
+        <form id="itemReviewForm">
+            <input type="hidden" id="reviewOrderId">
+
+            <div class="input-group" style="margin-bottom:14px;">
+                <label for="reviewProductSelect" style="display:block;margin-bottom:6px;font-size:13px;font-weight:600;">Select Item to Review *</label>
+                <select id="reviewProductSelect" required style="width:100%;padding:10px;border:1px solid #dce4de;border-radius:8px;font-size:14px;"></select>
+            </div>
+
+            <div class="input-group" style="margin-bottom:14px;">
+                <label style="display:block;margin-bottom:6px;font-size:13px;font-weight:600;">Rating (1 to 5 Stars) *</label>
+                <div style="display:flex;gap:12px;font-size:24px;cursor:pointer;" id="itemStarContainer">
+                    <span onclick="setItemRating(1)" data-v="1">⭐</span>
+                    <span onclick="setItemRating(2)" data-v="2">⭐</span>
+                    <span onclick="setItemRating(3)" data-v="3">⭐</span>
+                    <span onclick="setItemRating(4)" data-v="4">⭐</span>
+                    <span onclick="setItemRating(5)" data-v="5">⭐</span>
+                </div>
+                <input type="hidden" id="selectedItemRating" value="5">
+                <small id="ratingFeedback" style="color:#148550;font-weight:600;">5/5 - Excellent Freshness</small>
+            </div>
+
+            <!-- Issues checklist if rating <= 3 -->
+            <div id="itemIssuesBox" style="display:none;background:#fef6f6;border:1px solid #fed7d7;border-radius:8px;padding:12px;margin-bottom:14px;">
+                <strong style="display:block;color:#991b1b;font-size:12px;margin-bottom:8px;">What went wrong with this item?</strong>
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;font-size:12px;">
+                    <label><input type="checkbox" name="itemIssue" value="Damaged packaging"> Damaged packaging</label>
+                    <label><input type="checkbox" name="itemIssue" value="Not fresh / Spoiled"> Not fresh / Spoiled</label>
+                    <label><input type="checkbox" name="itemIssue" value="Expired / Past date"> Expired / Past date</label>
+                    <label><input type="checkbox" name="itemIssue" value="Wrong item delivered"> Wrong item delivered</label>
+                    <label><input type="checkbox" name="itemIssue" value="Bad taste / quality"> Bad taste / quality</label>
+                    <label><input type="checkbox" name="itemIssue" value="Missing quantity"> Missing quantity</label>
+                </div>
+            </div>
+
+            <div class="input-group" style="margin-bottom:16px;">
+                <label for="itemReviewComment" style="display:block;margin-bottom:6px;font-size:13px;font-weight:600;">Feedback / Comments</label>
+                <textarea id="itemReviewComment" placeholder="Describe the quality, freshness, or packaging..." style="width:100%;height:75px;padding:10px;border:1px solid #dce4de;border-radius:8px;font-size:13px;"></textarea>
+            </div>
+
+            <button type="submit" class="primary-btn" style="width:100%;padding:12px;border:none;cursor:pointer;font-size:14px;">
+                Submit Item Review
+            </button>
+        </form>
+    </div>
+</div>
+
+<!-- 2. DELIVERY REVIEW MODAL -->
+<div id="deliveryReviewModal" class="gg-modal-overlay" style="display:none;">
+    <div class="gg-modal-content">
+        <button class="gg-modal-close" onclick="closeModal('deliveryReviewModal')">×</button>
+        <h2 style="font-size:20px;color:#1a2a1e;margin-bottom:6px;">🚚 Review Delivery & Partner</h2>
+        <p style="color:#666;font-size:13px;margin-bottom:16px;">Rate delivery promptness and rider service.</p>
+
+        <form id="deliveryReviewForm">
+            <input type="hidden" id="delivReviewOrderId">
+
+            <div class="input-group" style="margin-bottom:14px;">
+                <label style="display:block;margin-bottom:6px;font-size:13px;font-weight:600;">Delivery Speed & Punctuality *</label>
+                <select id="delivSpeedSelect" required style="width:100%;padding:10px;border:1px solid #dce4de;border-radius:8px;font-size:14px;">
+                    <option value="5">⚡ Lightning Fast (Under 20 Mins) - 5 Stars</option>
+                    <option value="4" selected>⏱️ On Time (As Promised) - 4 Stars</option>
+                    <option value="3">🐢 Slightly Delayed - 3 Stars</option>
+                    <option value="2">⏳ Very Late Delivery - 2 Stars</option>
+                    <option value="1">❌ Extremely Delayed - 1 Star</option>
+                </select>
+            </div>
+
+            <div class="input-group" style="margin-bottom:14px;">
+                <label style="display:block;margin-bottom:6px;font-size:13px;font-weight:600;">Rider Politeness & Conduct *</label>
+                <select id="delivRiderRatingSelect" required style="width:100%;padding:10px;border:1px solid #dce4de;border-radius:8px;font-size:14px;">
+                    <option value="5" selected>🌟 Polite, Professional & Helpful</option>
+                    <option value="4">👍 Good & Courteous</option>
+                    <option value="3">😐 Neutral</option>
+                    <option value="2">👎 Rude or Unprofessional</option>
+                </select>
+            </div>
+
+            <div class="input-group" style="margin-bottom:14px;">
+                <label style="display:block;margin-bottom:6px;font-size:13px;font-weight:600;">Package Condition Upon Arrival *</label>
+                <select id="delivConditionSelect" required style="width:100%;padding:10px;border:1px solid #dce4de;border-radius:8px;font-size:14px;">
+                    <option value="Excellent">📦 Pristine & Well Handled</option>
+                    <option value="Good" selected>📦 Good Condition</option>
+                    <option value="Torn or Crushed">⚠️ Torn / Crushed Bags</option>
+                    <option value="Spilled or Leaked">⚠️ Liquids Leaked or Spilled</option>
+                </select>
+            </div>
+
+            <div class="input-group" style="margin-bottom:16px;">
+                <label for="delivNotes" style="display:block;margin-bottom:6px;font-size:13px;font-weight:600;">Delivery Experience Remarks</label>
+                <textarea id="delivNotes" placeholder="Share any feedback about the delivery experience..." style="width:100%;height:70px;padding:10px;border:1px solid #dce4de;border-radius:8px;font-size:13px;"></textarea>
+            </div>
+
+            <button type="submit" class="primary-btn" style="width:100%;padding:12px;border:none;cursor:pointer;font-size:14px;">
+                Submit Delivery Review
+            </button>
+        </form>
+    </div>
+</div>
+
+<!-- 3. REPORT ISSUE (SUPPORT TICKET) MODAL -->
+<div id="reportIssueModal" class="gg-modal-overlay" style="display:none;">
+    <div class="gg-modal-content">
+        <button class="gg-modal-close" onclick="closeModal('reportIssueModal')">×</button>
+        <h2 style="font-size:20px;color:#991b1b;margin-bottom:6px;">⚠️ Report an Order Issue</h2>
+        <p style="color:#666;font-size:13px;margin-bottom:16px;">Generate a high-priority customer support ticket.</p>
+
+        <form id="reportIssueForm">
+            <input type="hidden" id="issueOrderId">
+
+            <div class="input-group" style="margin-bottom:12px;">
+                <label style="display:block;margin-bottom:4px;font-size:13px;font-weight:600;">Associated Order Ref</label>
+                <input type="text" id="issueOrderDisplay" readonly style="width:100%;padding:10px;background:#f3f4f6;border:1px solid #d1d5db;border-radius:8px;font-weight:bold;">
+            </div>
+
+            <div class="input-group" style="margin-bottom:12px;">
+                <label for="issueCategorySelect" style="display:block;margin-bottom:4px;font-size:13px;font-weight:600;">Issue Category *</label>
+                <select id="issueCategorySelect" required style="width:100%;padding:10px;border:1px solid #dce4de;border-radius:8px;font-size:14px;">
+                    <option value="Missing Items">Missing Items from Package</option>
+                    <option value="Damaged Items">Damaged / Broken Items</option>
+                    <option value="Late Delivery">Significant Delivery Delay</option>
+                    <option value="Wrong Order Received">Received Wrong Order or Items</option>
+                    <option value="Billing / Payment Issue">Incorrect Billing or Payment</option>
+                    <option value="Delivery Partner Conduct">Delivery Partner Conduct</option>
+                    <option value="Other">Other Query / Problem</option>
+                </select>
+            </div>
+
+            <div class="input-group" style="margin-bottom:12px;">
+                <label for="issuePrioritySelect" style="display:block;margin-bottom:4px;font-size:13px;font-weight:600;">Urgency Priority</label>
+                <select id="issuePrioritySelect" style="width:100%;padding:10px;border:1px solid #dce4de;border-radius:8px;font-size:14px;">
+                    <option value="Medium" selected>Medium Priority</option>
+                    <option value="High">High Priority</option>
+                    <option value="Urgent">Urgent (Needs Instant Resolution)</option>
+                    <option value="Low">Low Priority</option>
+                </select>
+            </div>
+
+            <div class="input-group" style="margin-bottom:16px;">
+                <label for="issueDescription" style="display:block;margin-bottom:4px;font-size:13px;font-weight:600;">Describe the Problem *</label>
+                <textarea id="issueDescription" required placeholder="Please provide specific details so our support team can resolve this quickly..." style="width:100%;height:85px;padding:10px;border:1px solid #dce4de;border-radius:8px;font-size:13px;"></textarea>
+            </div>
+
+            <button type="submit" class="primary-btn" style="width:100%;padding:12px;border:none;background:#b91c1c;cursor:pointer;font-size:14px;">
+                🚨 Submit Support Ticket
+            </button>
+        </form>
+    </div>
+</div>
 
 <!-- SCRIPTS -->
 <script src="../store.js"></script>
@@ -386,24 +545,31 @@
     // 2. Update Navbar Cart Count
     document.getElementById("cartCount").textContent = window.GroceryStore.getCartCount();
 
-    // 3. Render Orders
+    // 3. Status Progression Lifecycle
     const stages = [
         "Order Placed",
         "Confirmed",
-        "Packed",
+        "Preparing",
         "Rider Assigned",
-        "Picked Up",
         "Out for Delivery",
         "Delivered"
     ];
+
+    function mapStatusToStageIndex(status) {
+        if (status === "Packed") return 2; // maps to Preparing
+        if (status === "Picked Up") return 3; // maps to Rider Assigned
+        const idx = stages.indexOf(status);
+        return idx !== -1 ? idx : 0;
+    }
 
     function getBadgeClass(status) {
         switch(status) {
             case "Order Placed": return "status-placed";
             case "Confirmed": return "status-confirmed";
+            case "Preparing":
             case "Packed": return "status-packed";
-            case "Rider Assigned": return "status-rider-assigned";
-            case "Picked Up": return "status-picked-up";
+            case "Rider Assigned":
+            case "Picked Up": return "status-rider-assigned";
             case "Out for Delivery": return "status-out-for-delivery";
             case "Delivered": return "status-delivered";
             case "Cancelled": return "status-cancelled";
@@ -438,24 +604,25 @@
             card.className = "order-card";
 
             const isCancelled = order.status === "Cancelled";
-            const currentStageIndex = stages.indexOf(order.status);
-            const canCancel = ["Order Placed", "Confirmed", "Packed"].includes(order.status);
+            const isDelivered = order.status === "Delivered";
+            const currentStageIndex = mapStatusToStageIndex(order.status);
+            const canCancel = ["Order Placed", "Confirmed", "Preparing", "Packed"].includes(order.status);
 
             // Build Timeline Steps
             let timelineHTML = "";
             if (!isCancelled) {
                 timelineHTML = `
                     <div class="tracking-container">
-                        <div class="tracking-title">Live Order Tracking</div>
+                        <div class="tracking-title">Live Delivery Progression</div>
                         <div class="timeline-steps">
                             ${stages.map((stageName, idx) => {
                                 let stepClass = "";
-                                if (idx < currentStageIndex) stepClass = "completed";
+                                if (isDelivered || idx < currentStageIndex) stepClass = "completed";
                                 else if (idx === currentStageIndex) stepClass = "active";
 
                                 return `
                                     <div class="timeline-step ${stepClass}">
-                                        <div class="step-circle">${idx < currentStageIndex ? "✓" : (idx + 1)}</div>
+                                        <div class="step-circle">${(isDelivered || idx < currentStageIndex) ? "✓" : (idx + 1)}</div>
                                         <span class="step-label">${stageName}</span>
                                     </div>
                                 `;
@@ -466,12 +633,12 @@
             } else {
                 timelineHTML = `
                     <div style="background:#fdf2f2;border:1px solid #f9d2d2;border-radius:8px;padding:12px 16px;margin:16px 0;color:#c81e1e;font-size:13px;display:flex;align-items:center;gap:8px;">
-                        <span>⚠️</span> This order was <strong>Cancelled</strong>. Items and payment status have been released.
+                        <span>⚠️</span> This order was <strong>Cancelled</strong>.
                     </div>
                 `;
             }
 
-            // Rider Info Banner (Section 32)
+            // Rider Info Banner
             let riderHTML = "";
             if (order.riderName && !isCancelled) {
                 riderHTML = `
@@ -480,10 +647,10 @@
                             <div class="rider-avatar">🛵</div>
                             <div class="rider-details">
                                 <h4>Delivery Partner: ${order.riderName}</h4>
-                                <p>Vehicle: <strong>${order.riderVehicle || "Delivery Bike"}</strong> • Status: <strong>${order.status}</strong></p>
+                                <p>Vehicle: <strong>${order.riderVehicle || "Delivery Scooter"}</strong> • Contact: <strong>${order.riderPhone || "+91 98765 00123"}</strong></p>
                             </div>
                         </div>
-                        ${order.riderPhone ? `<a href="tel:${order.riderPhone}" class="rider-phone-btn">📞 Call Partner (${order.riderPhone})</a>` : ""}
+                        <a href="tel:${order.riderPhone || "9876500123"}" class="rider-phone-btn">📞 Call Partner</a>
                     </div>
                 `;
             }
@@ -499,22 +666,52 @@
                 `;
             });
 
+            // Customer Service & Review Action Bar
+            let serviceActionsHTML = "";
+            if (isDelivered) {
+                serviceActionsHTML = `
+                    <div style="background:#f8faf9;border:1px solid #e2ebe4;border-radius:10px;padding:14px;margin-top:16px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;">
+                        <span style="font-size:13px;font-weight:700;color:#148550;">✨ Order Completed & Delivered</span>
+                        <div style="display:flex;gap:8px;flex-wrap:wrap;">
+                            <button onclick="openItemReviewModal('${order.id}')" style="background:#fff;border:1px solid #19a463;color:#19a463;font-weight:700;padding:6px 12px;border-radius:6px;cursor:pointer;font-size:12px;">
+                                ⭐ Review Items
+                            </button>
+                            <button onclick="openDeliveryReviewModal('${order.id}', '${order.riderName || ""}')" style="background:#fff;border:1px solid #19a463;color:#19a463;font-weight:700;padding:6px 12px;border-radius:6px;cursor:pointer;font-size:12px;">
+                                🚚 Review Delivery
+                            </button>
+                            <button onclick="openReportIssueModal('${order.id}')" style="background:#fff;border:1px solid #e02424;color:#e02424;font-weight:700;padding:6px 12px;border-radius:6px;cursor:pointer;font-size:12px;">
+                                ⚠️ Report an Issue
+                            </button>
+                        </div>
+                    </div>
+                `;
+            } else if (!isCancelled) {
+                serviceActionsHTML = `
+                    <div style="margin-top:12px;text-align:right;">
+                        <button onclick="openReportIssueModal('${order.id}')" style="background:none;border:none;color:#b91c1c;font-size:12px;font-weight:600;cursor:pointer;text-decoration:underline;">
+                            ⚠️ Have an issue with this order? Report to Support
+                        </button>
+                    </div>
+                `;
+            }
+
             card.innerHTML = `
                 <div class="order-top">
                     <div class="order-id-group">
                         <strong>Order #${order.id}</strong>
-                        <small>Placed on ${order.orderDate} • Mode: ${order.paymentMethod}</small>
+                        <small>Placed on ${order.orderDate} • Mode: ${order.paymentMethod} (${order.paymentStatus || "Paid"})</small>
                     </div>
                     <span class="status-badge ${getBadgeClass(order.status)}">${order.status}</span>
                 </div>
 
                 ${timelineHTML}
-
                 ${riderHTML}
 
                 <div class="order-items-box">
                     ${itemsHTML}
                 </div>
+
+                ${serviceActionsHTML}
 
                 <div class="order-bottom">
                     <div class="order-address-snippet">
@@ -524,7 +721,7 @@
                     <div class="order-actions">
                         ${canCancel ? `<button class="cancel-order-btn" onclick="handleCancelOrder('${order.id}')">Cancel Order</button>` : ""}
                         <div>
-                            <span style="font-size:12px;color:#777;display:block;text-align:right;">Total Amount</span>
+                            <span style="font-size:12px;color:#777;display:block;text-align:right;">Total Paid</span>
                             <span class="order-total-amount">₹${order.total}</span>
                         </div>
                     </div>
@@ -534,6 +731,133 @@
             container.appendChild(card);
         });
     }
+
+    // Modal Helpers
+    window.closeModal = function(modalId) {
+        document.getElementById(modalId).style.display = "none";
+    };
+
+    window.openItemReviewModal = function(orderId) {
+        const order = window.GroceryStore.getOrderById(orderId);
+        if (!order) return;
+
+        document.getElementById("reviewOrderId").value = orderId;
+        const select = document.getElementById("reviewProductSelect");
+        select.innerHTML = order.items.map(item => `<option value="${item.id}">${item.icon || "🛒"} ${item.name} (${item.unit || "unit"})</option>`).join("");
+        setItemRating(5);
+        document.getElementById("itemReviewModal").style.display = "flex";
+    };
+
+    window.setItemRating = function(rating) {
+        document.getElementById("selectedItemRating").value = rating;
+        const stars = document.querySelectorAll("#itemStarContainer span");
+        stars.forEach((s, idx) => {
+            s.style.opacity = idx < rating ? "1" : "0.25";
+        });
+
+        const feedback = document.getElementById("ratingFeedback");
+        const issuesBox = document.getElementById("itemIssuesBox");
+
+        if (rating >= 4) {
+            feedback.textContent = `${rating}/5 - High Freshness & Quality`;
+            feedback.style.color = "#148550";
+            issuesBox.style.display = "none";
+        } else {
+            feedback.textContent = `${rating}/5 - Needs Attention`;
+            feedback.style.color = "#b91c1c";
+            issuesBox.style.display = "block";
+        }
+    };
+
+    // Item Review Form Submission
+    document.getElementById("itemReviewForm").addEventListener("submit", function(e) {
+        e.preventDefault();
+        const orderId = document.getElementById("reviewOrderId").value;
+        const productId = document.getElementById("reviewProductSelect").value;
+        const productName = document.getElementById("reviewProductSelect").selectedOptions[0].text;
+        const rating = Number(document.getElementById("selectedItemRating").value);
+        const comment = document.getElementById("itemReviewComment").value.trim();
+
+        const checkedIssues = Array.from(document.querySelectorAll('input[name="itemIssue"]:checked')).map(cb => cb.value);
+
+        window.GroceryStore.addReview({
+            type: "item",
+            orderId: orderId,
+            productId: Number(productId),
+            productName: productName,
+            userId: user.id,
+            userName: user.name,
+            rating: rating,
+            issues: checkedIssues,
+            comment: comment
+        });
+
+        closeModal("itemReviewModal");
+        alert("Thank you! Your product review has been submitted.");
+    });
+
+    window.openDeliveryReviewModal = function(orderId, riderName) {
+        document.getElementById("delivReviewOrderId").value = orderId;
+        document.getElementById("deliveryReviewModal").style.display = "flex";
+    };
+
+    // Delivery Review Form Submission
+    document.getElementById("deliveryReviewForm").addEventListener("submit", function(e) {
+        e.preventDefault();
+        const orderId = document.getElementById("delivReviewOrderId").value;
+        const speedRating = Number(document.getElementById("delivSpeedSelect").value);
+        const riderRating = Number(document.getElementById("delivRiderRatingSelect").value);
+        const packageCondition = document.getElementById("delivConditionSelect").value;
+        const remarks = document.getElementById("delivNotes").value.trim();
+
+        const order = window.GroceryStore.getOrderById(orderId);
+
+        window.GroceryStore.addReview({
+            type: "delivery",
+            orderId: orderId,
+            riderName: order?.riderName || "Delivery Partner",
+            userId: user.id,
+            userName: user.name,
+            speedRating: speedRating,
+            riderRating: riderRating,
+            packageCondition: packageCondition,
+            remarks: remarks
+        });
+
+        closeModal("deliveryReviewModal");
+        alert("Thank you! Your delivery partner review has been recorded.");
+    });
+
+    window.openReportIssueModal = function(orderId) {
+        document.getElementById("issueOrderId").value = orderId;
+        document.getElementById("issueOrderDisplay").value = `Order #${orderId}`;
+        document.getElementById("reportIssueModal").style.display = "flex";
+    };
+
+    // Support Ticket Submission
+    document.getElementById("reportIssueForm").addEventListener("submit", function(e) {
+        e.preventDefault();
+        const orderId = document.getElementById("issueOrderId").value;
+        const category = document.getElementById("issueCategorySelect").value;
+        const priority = document.getElementById("issuePrioritySelect").value;
+        const description = document.getElementById("issueDescription").value.trim();
+
+        const ticket = window.GroceryStore.createSupportTicket({
+            userId: user.id,
+            userName: user.name,
+            userEmail: user.email,
+            userPhone: user.phone || "",
+            orderId: orderId,
+            category: category,
+            priority: priority,
+            subject: `Issue with Order #${orderId} (${category})`,
+            description: description
+        });
+
+        closeModal("reportIssueModal");
+        alert(`Support Ticket #${ticket.id} generated successfully! Our support desk has received your report.`);
+        window.location.href = "support.html";
+    });
 
     // 4. Cancel Handler
     window.handleCancelOrder = function(orderId) {

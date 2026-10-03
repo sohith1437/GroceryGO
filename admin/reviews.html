@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GroceryGo Admin - Customer Reviews & Ratings</title>
+    <link rel="stylesheet" href="../style.css">
+    <link rel="stylesheet" href="../admin.css">
+
+    <style>
+        .tabs-header {
+            display: flex;
+            gap: 12px;
+            border-bottom: 2px solid #eef2ee;
+            margin-bottom: 20px;
+        }
+
+        .tab-btn {
+            background: none;
+            border: none;
+            padding: 12px 20px;
+            font-size: 15px;
+            font-weight: 600;
+            color: #666;
+            cursor: pointer;
+            border-bottom: 3px solid transparent;
+            margin-bottom: -2px;
+            transition: all 0.2s;
+        }
+
+        .tab-btn:hover {
+            color: #19a463;
+        }
+
+        .tab-btn.active {
+            color: #19a463;
+            border-bottom-color: #19a463;
+        }
+    </style>
+</head>
+
+<body>
+
+<!-- ================= ADMIN NAVBAR ================= -->
+<header class="admin-navbar">
+    <div class="admin-navbar-inner">
+        <div class="admin-brand">
+            <div class="admin-logo">🛒 GroceryGo</div>
+            <span class="admin-badge">Admin Console</span>
+        </div>
+
+        <nav class="admin-nav-links">
+            <a href="dashboard.html" class="admin-nav-item">📊 Dashboard</a>
+            <a href="products.html" class="admin-nav-item">🍎 Products</a>
+            <a href="categories.html" class="admin-nav-item">🗂️ Categories</a>
+            <a href="inventory.html" class="admin-nav-item">📦 Inventory</a>
+            <a href="orders.html" class="admin-nav-item">🛍️ Orders</a>
+            <a href="riders.html" class="admin-nav-item">🛵 Riders</a>
+            <a href="users.html" class="admin-nav-item">👥 Users</a>
+            <a href="offers.html" class="admin-nav-item">🏷️ Offers</a>
+            <a href="reports.html" class="admin-nav-item">📈 Reports</a>
+            <a href="support.html" class="admin-nav-item">🎧 Support</a>
+            <a href="reviews.html" class="admin-nav-item active">⭐ Reviews</a>
+        </nav>
+
+        <div class="admin-nav-actions">
+            <div class="admin-profile-pill">
+                <span>🛡️</span>
+                <span id="adminProfileName">Admin</span>
+            </div>
+            <button class="admin-logout-btn" onclick="logout()">Logout</button>
+        </div>
+    </div>
+</header>
+
+<main class="admin-main">
+
+    <div class="admin-page-header">
+        <div>
+            <h1>⭐ Customer Reviews & Ratings Moderation</h1>
+            <p>Monitor product quality ratings, reported freshness issues, and delivery fleet performance.</p>
+        </div>
+    </div>
+
+    <!-- METRICS GRID -->
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="stat-top">
+                <div class="stat-icon icon-amber">⭐</div>
+                <span class="pill pill-amber">Product Quality</span>
+            </div>
+            <div class="stat-val" id="revAvgItem">5.0</div>
+            <div class="stat-label">Avg Grocery Quality Rating</div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-top">
+                <div class="stat-icon icon-green">⚡</div>
+                <span class="pill pill-green">Delivery Speed</span>
+            </div>
+            <div class="stat-val" id="revAvgSpeed">4.8</div>
+            <div class="stat-label">Avg Delivery Speed Rating</div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-top">
+                <div class="stat-icon icon-purple">🛵</div>
+                <span class="pill pill-purple">Fleet Conduct</span>
+            </div>
+            <div class="stat-val" id="revAvgRider">4.9</div>
+            <div class="stat-label">Avg Partner Conduct Rating</div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-top">
+                <div class="stat-icon icon-blue">💬</div>
+                <span class="pill pill-blue">Volume</span>
+            </div>
+            <div class="stat-val" id="revTotalCount">0</div>
+            <div class="stat-label">Total Verified Customer Reviews</div>
+        </div>
+    </div>
+
+    <!-- MAIN TABS CONTAINER -->
+    <div class="admin-card">
+
+        <div class="tabs-header">
+            <button class="tab-btn active" id="tabItemBtn" onclick="switchReviewTab('item')">
+                🍎 Product Item Reviews (<span id="countItemReviews">0</span>)
+            </button>
+            <button class="tab-btn" id="tabDeliveryBtn" onclick="switchReviewTab('delivery')">
+                🛵 Delivery Fleet Reviews (<span id="countDeliveryReviews">0</span>)
+            </button>
+        </div>
+
+        <!-- TAB 1: ITEM REVIEWS TABLE -->
+        <div id="tabItemContent">
+            <div class="table-responsive">
+                <table class="admin-table">
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Product Name</th>
+                            <th>Order Ref</th>
+                            <th>Customer</th>
+                            <th>Rating</th>
+                            <th>Quality Issues</th>
+                            <th>Comment / Feedback</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody id="itemReviewsTbody">
+                        <!-- Dynamically populated -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- TAB 2: DELIVERY REVIEWS TABLE -->
+        <div id="tabDeliveryContent" style="display:none;">
+            <div class="table-responsive">
+                <table class="admin-table">
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Order Ref</th>
+                            <th>Delivery Partner</th>
+                            <th>Customer</th>
+                            <th>Speed</th>
+                            <th>Partner Conduct</th>
+                            <th>Package State</th>
+                            <th>Remarks</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody id="deliveryReviewsTbody">
+                        <!-- Dynamically populated -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+    </div>
+
+</main>
+
+<!-- SCRIPTS -->
+<script src="../store.js"></script>
+<script src="../auth.js"></script>
+
+<script>
+(function() {
+    // 1. Guard Page
+    const user = window.GroceryAuth.protectPage("admin");
+    if (!user) return;
+
+    if (user.name) {
+        document.getElementById("adminProfileName").textContent = user.name.split(" ")[0];
+    }
+
+    let currentTab = "item";
+
+    window.switchReviewTab = function(tab) {
+        currentTab = tab;
+        const itemBtn = document.getElementById("tabItemBtn");
+        const deliveryBtn = document.getElementById("tabDeliveryBtn");
+        const itemContent = document.getElementById("tabItemContent");
+        const deliveryContent = document.getElementById("tabDeliveryContent");
+
+        if (tab === "item") {
+            itemBtn.classList.add("active");
+            deliveryBtn.classList.remove("active");
+            itemContent.style.display = "block";
+            deliveryContent.style.display = "none";
+        } else {
+            deliveryBtn.classList.add("active");
+            itemBtn.classList.remove("active");
+            deliveryContent.style.display = "block";
+            itemContent.style.display = "none";
+        }
+    };
+
+    function renderReviews() {
+        const reviews = window.GroceryStore.getReviews();
+        const itemReviews = reviews.filter(r => r.type === "item");
+        const deliveryReviews = reviews.filter(r => r.type === "delivery");
+
+        document.getElementById("countItemReviews").textContent = itemReviews.length;
+        document.getElementById("countDeliveryReviews").textContent = deliveryReviews.length;
+        document.getElementById("revTotalCount").textContent = reviews.length;
+
+        // Compute averages
+        const itemRatings = itemReviews.map(r => Number(r.rating) || 5);
+        const avgItem = itemRatings.length > 0 ? (itemRatings.reduce((a, b) => a + b, 0) / itemRatings.length).toFixed(1) : "5.0";
+        document.getElementById("revAvgItem").textContent = `${avgItem} ⭐`;
+
+        const speedRatings = deliveryReviews.map(r => Number(r.speedRating) || 5);
+        const avgSpeed = speedRatings.length > 0 ? (speedRatings.reduce((a, b) => a + b, 0) / speedRatings.length).toFixed(1) : "4.8";
+        document.getElementById("revAvgSpeed").textContent = `${avgSpeed} ⭐`;
+
+        const riderRatings = deliveryReviews.map(r => Number(r.riderRating) || 5);
+        const avgRider = riderRatings.length > 0 ? (riderRatings.reduce((a, b) => a + b, 0) / riderRatings.length).toFixed(1) : "4.9";
+        document.getElementById("revAvgRider").textContent = `${avgRider} ⭐`;
+
+        // Render Item Reviews Table
+        const itemTbody = document.getElementById("itemReviewsTbody");
+        itemTbody.innerHTML = "";
+        if (itemReviews.length === 0) {
+            itemTbody.innerHTML = `<tr><td colspan="8" style="text-align:center;color:#888;padding:24px;">No item reviews submitted yet.</td></tr>`;
+        } else {
+            itemReviews.slice().reverse().forEach(rev => {
+                const tr = document.createElement("tr");
+                const issuesPills = (rev.issues && rev.issues.length > 0)
+                    ? rev.issues.map(iss => `<span class="pill pill-red" style="font-size:10px;margin-right:3px;">${iss}</span>`).join("")
+                    : '<span class="pill pill-green" style="font-size:10px;">None (Fresh)</span>';
+
+                tr.innerHTML = `
+                    <td><small>${rev.createdAt}</small></td>
+                    <td><strong>${rev.productName}</strong></td>
+                    <td><a href="orders.html" style="color:#19a463;font-weight:bold;">#${rev.orderId}</a></td>
+                    <td>${rev.userName}</td>
+                    <td><strong style="color:#d97706;">${rev.rating} ⭐</strong></td>
+                    <td>${issuesPills}</td>
+                    <td><small style="color:#555;">${rev.comment || "<em>No written comment</em>"}</small></td>
+                    <td>
+                        <button class="tbl-btn tbl-btn-delete" onclick="handleDeleteReview(${rev.id})">Delete</button>
+                    </td>
+                `;
+                itemTbody.appendChild(tr);
+            });
+        }
+
+        // Render Delivery Reviews Table
+        const delivTbody = document.getElementById("deliveryReviewsTbody");
+        delivTbody.innerHTML = "";
+        if (deliveryReviews.length === 0) {
+            delivTbody.innerHTML = `<tr><td colspan="9" style="text-align:center;color:#888;padding:24px;">No delivery reviews submitted yet.</td></tr>`;
+        } else {
+            deliveryReviews.slice().reverse().forEach(rev => {
+                const tr = document.createElement("tr");
+                tr.innerHTML = `
+                    <td><small>${rev.createdAt}</small></td>
+                    <td><a href="orders.html" style="color:#19a463;font-weight:bold;">#${rev.orderId}</a></td>
+                    <td><strong>🛵 ${rev.riderName || "Fleet Partner"}</strong></td>
+                    <td>${rev.userName}</td>
+                    <td><strong style="color:#19a463;">${rev.speedRating || 5} / 5 ⭐</strong></td>
+                    <td><strong>${rev.riderRating || 5} / 5 ⭐</strong></td>
+                    <td><span class="pill ${rev.packageCondition === 'Damaged / Leaked' ? 'pill-red' : 'pill-green'}">${rev.packageCondition || 'Good'}</span></td>
+                    <td><small style="color:#555;">${rev.remarks || "<em>No remarks</em>"}</small></td>
+                    <td>
+                        <button class="tbl-btn tbl-btn-delete" onclick="handleDeleteReview(${rev.id})">Delete</button>
+                    </td>
+                `;
+                delivTbody.appendChild(tr);
+            });
+        }
+    }
+
+    window.handleDeleteReview = function(reviewId) {
+        if (confirm("Are you sure you want to remove this review?")) {
+            let reviews = window.GroceryStore.getReviews();
+            reviews = reviews.filter(r => r.id !== reviewId);
+            localStorage.setItem("reviews", JSON.stringify(reviews));
+            renderReviews();
+        }
+    };
+
+    renderReviews();
+})();
+</script>
+
+</body>
+</html>

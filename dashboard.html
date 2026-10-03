@@ -3,28 +3,23 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GroceryGo - Dashboard</title>
-    <link rel="stylesheet" href="css/style.css">
+    <title>GroceryGo - Redirecting...</title>
 </head>
-<body>
-
-    <div class="dashboard">
-
-        <div class="dashboard-box">
-
-            <h1>Welcome to GroceryGo 🛒</h1>
-
-            <p id="welcomeMessage"></p>
-
-            <button onclick="logout()" class="btn logout-btn">
-                Logout
-            </button>
-
-        </div>
-
-    </div>
-
-    <script src="js/auth.js"></script>
-
+<body style="font-family:sans-serif;text-align:center;padding:50px;">
+    <h2>Redirecting to your GroceryGo Dashboard...</h2>
+    <script src="store.js"></script>
+    <script src="auth.js"></script>
+    <script>
+        (function() {
+            const user = window.GroceryAuth.getCurrentUser();
+            if (user && user.role === "admin") {
+                window.location.href = "admin/dashboard.html";
+            } else if (user) {
+                window.location.href = "user/dashboard.html";
+            } else {
+                window.location.href = "login.html";
+            }
+        })();
+    </script>
 </body>
 </html>

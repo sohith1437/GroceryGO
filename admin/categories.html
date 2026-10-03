@@ -29,6 +29,8 @@
             <a href="users.html" class="admin-nav-item">👥 Users</a>
             <a href="offers.html" class="admin-nav-item">🏷️ Offers</a>
             <a href="reports.html" class="admin-nav-item">📈 Reports</a>
+            <a href="support.html" class="admin-nav-item">🎧 Support</a>
+            <a href="reviews.html" class="admin-nav-item">⭐ Reviews</a>
         </nav>
 
         <div class="admin-nav-actions">
@@ -288,10 +290,28 @@
         }
     };
 
-    // 6. Delete Category
+    // 6. Delete Category Safely
     window.deleteCategory = function(idOrName) {
-        if (confirm("Are you sure you want to delete this category?")) {
-            let categories = window.GroceryStore.getCategories();
+        let categories = window.GroceryStore.getCategories();
+        const cat = categories.find(c => (c.id && c.id === idOrName) || c.name === idOrName);
+        if (!cat) return;
+
+        const products = window.GroceryStore.getProducts();
+        const linkedProducts = products.filter(p => p.category.toLowerCase() === cat.name.toLowerCase());
+
+        let msg = `Are you sure you want to delete category "${cat.name}"?`;
+        if (linkedProducts.length > 0) {
+            msg += `\n\nWarning: There are ${linkedProducts.length} product(s) in this category. Deleting it will safely reassign those products to "Other".`;
+        }
+
+        if (confirm(msg)) {
+            if (linkedProducts.length > 0) {
+                linkedProducts.forEach(p => {
+                    p.category = "Other";
+                });
+                window.GroceryStore.saveProducts(products);
+            }
+
             categories = categories.filter(c => (c.id && c.id !== idOrName) && c.name !== idOrName);
             window.GroceryStore.saveCategories(categories);
             renderCategories();

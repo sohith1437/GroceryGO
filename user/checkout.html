@@ -256,6 +256,7 @@
             🛒 Cart
             <span id="cartCount">0</span>
         </a>
+        <a href="support.html" class="login-link">🎧 Support</a>
         <a href="profile.html" class="login-link">👤 Profile</a>
         <button type="button" onclick="logout()" class="register-link" style="border:none;background:none;cursor:pointer;">
             Logout
@@ -307,28 +308,66 @@
                     </div>
                 </div>
 
-                <h2 style="margin-top:20px;">Payment Method</h2>
+                <h2 style="margin-top:24px;">Payment Method (Simulated Academic Demo)</h2>
 
                 <div class="payment-options">
-                    <label class="payment-option active">
-                        <input type="radio" name="payment" value="Cash on Delivery" checked>
+                    <label class="payment-option active" id="codOptionLabel">
+                        <input type="radio" name="payment" value="Cash on Delivery" checked onchange="handlePaymentChange(this.value)">
                         <div>
                             <strong>💵 Cash on Delivery (COD)</strong>
-                            <small style="display:block;color:#777;font-size:12px;">Pay conveniently with cash or UPI at your doorstep</small>
+                            <small style="display:block;color:#777;font-size:12px;">Pay with cash or UPI to the delivery rider at your doorstep</small>
                         </div>
                     </label>
 
-                    <label class="payment-option">
-                        <input type="radio" name="payment" value="Online Payment (Demo)">
+                    <label class="payment-option" id="upiOptionLabel">
+                        <input type="radio" name="payment" value="UPI" onchange="handlePaymentChange(this.value)">
                         <div>
-                            <strong>💳 Online Payment (Academic Demo)</strong>
-                            <small style="display:block;color:#777;font-size:12px;">Instant simulated card / UPI / NetBanking authorization</small>
+                            <strong>📱 UPI — Demo Payment Simulator</strong>
+                            <small style="display:block;color:#777;font-size:12px;">Simulate instant UPI authorization (GPay, PhonePe, Paytm, BHIM)</small>
                         </div>
                     </label>
                 </div>
 
-                <button type="submit" class="place-order-btn">
-                    🛍️ Place Order Now
+                <!-- UPI Demo Simulation Box -->
+                <div id="upiDemoBox" style="display:none;background:#f6fbf8;border:1.5px dashed #19a463;border-radius:12px;padding:20px;margin-bottom:20px;">
+                    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
+                        <strong style="color:#148550;font-size:15px;">📲 Fast UPI Checkout Simulation</strong>
+                        <span style="font-size:12px;background:#e9f8ef;color:#148550;padding:3px 10px;border-radius:12px;font-weight:700;">Zero Real Money</span>
+                    </div>
+
+                    <div style="display:grid;grid-template-columns:1fr 140px;gap:16px;align-items:center;">
+                        <div>
+                            <div class="input-group" style="margin-bottom:10px;">
+                                <label for="upiIdInput">Virtual Payment Address (UPI ID)</label>
+                                <input type="text" id="upiIdInput" placeholder="e.g. rahul@okaxis, demo@upi" value="demo@grocerygo">
+                            </div>
+                            <small style="color:#666;font-size:12px;display:block;margin-bottom:10px;">
+                                Supported formats: @oksbi, @okhdfcbank, @icici, @paytm, @ybl
+                            </small>
+                        </div>
+
+                        <!-- Demo QR Code Visual -->
+                        <div style="text-align:center;background:white;padding:10px;border-radius:10px;border:1px solid #dce8e0;">
+                            <div style="font-size:42px;line-height:1;margin-bottom:4px;">🏁</div>
+                            <small style="display:block;font-size:10px;color:#666;font-weight:bold;">DEMO QR CODE</small>
+                            <span id="qrAmountTag" style="font-size:11px;color:#19a463;font-weight:bold;">₹0</span>
+                        </div>
+                    </div>
+
+                    <div id="upiStatusMessage" style="display:none;padding:10px;border-radius:8px;font-size:13px;font-weight:600;margin:12px 0;text-align:center;"></div>
+
+                    <div style="display:flex;gap:10px;margin-top:14px;flex-wrap:wrap;">
+                        <button type="button" id="upiSuccessBtn" onclick="simulateUPIPayment(true)" class="primary-btn" style="flex:1;font-size:13px;padding:10px;border:none;cursor:pointer;">
+                            ✅ Authorize UPI (Simulate Success)
+                        </button>
+                        <button type="button" id="upiFailBtn" onclick="simulateUPIPayment(false)" style="background:#fee2e2;color:#991b1b;border:1px solid #f87171;border-radius:7px;padding:10px 14px;font-size:13px;font-weight:bold;cursor:pointer;">
+                            ❌ Simulate Failure
+                        </button>
+                    </div>
+                </div>
+
+                <button type="submit" id="mainSubmitBtn" class="place-order-btn">
+                    🛍️ Place Order (Cash on Delivery)
                 </button>
             </form>
         </div>
@@ -403,9 +442,21 @@
         return;
     }
 
-    // 3. Auto-fill User Name
+    // 3. Auto-fill User details and delivery location
     if (user.name) {
         document.getElementById("customerName").value = user.name;
+    }
+    if (user.phone) {
+        document.getElementById("phone").value = user.phone;
+    }
+    if (user.address) {
+        document.getElementById("address").value = user.address;
+    }
+    const savedLoc = window.GroceryStore.getDeliveryLocation();
+    if (savedLoc) {
+        const parts = savedLoc.split(" - ");
+        if (parts[0]) document.getElementById("city").value = parts[0];
+        if (parts[1]) document.getElementById("pincode").value = parts[1];
     }
 
     // 4. Update Navbar Cart Count
@@ -431,46 +482,67 @@
     document.getElementById("summarySubtotal").textContent = `₹${totals.subtotal}`;
     document.getElementById("summaryDelivery").textContent = totals.deliveryFee === 0 ? "FREE" : `₹${totals.deliveryFee}`;
     document.getElementById("summaryTotal").textContent = `₹${totals.total}`;
+    document.getElementById("qrAmountTag").textContent = `₹${totals.total}`;
 
     if (totals.discount > 0) {
         document.getElementById("discountRow").style.display = "flex";
         document.getElementById("summaryDiscount").textContent = `- ₹${totals.discount} (${totals.appliedCoupon.code})`;
     }
 
-    // Payment option selection styling
-    const paymentOptions = document.querySelectorAll(".payment-option");
-    paymentOptions.forEach(opt => {
-        opt.addEventListener("click", () => {
-            paymentOptions.forEach(o => o.classList.remove("active"));
-            opt.classList.add("active");
-        });
-    });
+    // Payment Selection Switcher
+    window.handlePaymentChange = function(mode) {
+        const upiBox = document.getElementById("upiDemoBox");
+        const submitBtn = document.getElementById("mainSubmitBtn");
+        const codLabel = document.getElementById("codOptionLabel");
+        const upiLabel = document.getElementById("upiOptionLabel");
 
-    // 7. Place Order Submission
-    document.getElementById("checkoutForm").addEventListener("submit", function(e) {
-        e.preventDefault();
+        if (mode === "UPI") {
+            upiBox.style.display = "block";
+            submitBtn.textContent = "⚡ Pay via UPI & Place Order";
+            upiLabel.classList.add("active");
+            codLabel.classList.remove("active");
+        } else {
+            upiBox.style.display = "none";
+            submitBtn.textContent = "🛍️ Place Order (Cash on Delivery)";
+            codLabel.classList.add("active");
+            upiLabel.classList.remove("active");
+        }
+    };
 
+    function validateCustomerForm() {
         const customerName = document.getElementById("customerName").value.trim();
         const phone = document.getElementById("phone").value.trim();
         const address = document.getElementById("address").value.trim();
         const city = document.getElementById("city").value.trim();
         const pincode = document.getElementById("pincode").value.trim();
-        const paymentMethod = document.querySelector('input[name="payment"]:checked').value;
 
         if (!customerName || !phone || !address || !city || !pincode) {
-            alert("Please fill in all delivery details.");
-            return;
+            alert("Please fill in all delivery details before proceeding.");
+            return null;
         }
 
-        // Create Order using Store API
+        if (phone.length < 10) {
+            alert("Please enter a valid 10-digit mobile phone number.");
+            return null;
+        }
+
+        return { customerName, phone, address, city, pincode };
+    }
+
+    function finalizeOrderCreation(paymentMethod, paymentStatus, transactionId) {
+        const details = validateCustomerForm();
+        if (!details) return;
+
         const newOrder = window.GroceryStore.createOrder({
             userId: user.id,
-            customerName,
-            phone,
-            address,
-            city,
-            pincode,
-            paymentMethod,
+            customerName: details.customerName,
+            phone: details.phone,
+            address: details.address,
+            city: details.city,
+            pincode: details.pincode,
+            paymentMethod: paymentMethod,
+            paymentStatus: paymentStatus,
+            transactionId: transactionId || null,
             items: cart,
             subtotal: totals.subtotal,
             deliveryFee: totals.deliveryFee,
@@ -492,16 +564,66 @@
         successBox.style.display = "block";
 
         document.getElementById("successDetails").innerHTML = `
-            <div><strong>Order ID:</strong> <span style="color:#19a463;font-weight:700;">${newOrder.id}</span></div>
+            <div><strong>Order ID:</strong> <span style="color:#19a463;font-weight:700;">#${newOrder.id}</span></div>
             <div><strong>Recipient:</strong> ${newOrder.customerName} (${newOrder.phone})</div>
             <div><strong>Delivery Address:</strong> ${newOrder.address}, ${newOrder.city} - ${newOrder.pincode}</div>
-            <div><strong>Payment Mode:</strong> ${newOrder.paymentMethod}</div>
+            <div><strong>Payment Mode:</strong> ${newOrder.paymentMethod} (${newOrder.paymentStatus})</div>
+            ${newOrder.transactionId ? `<div><strong>Transaction Ref:</strong> <code style="background:#eaf7ee;color:#148550;padding:2px 6px;border-radius:4px;">${newOrder.transactionId}</code></div>` : ""}
             <div><strong>Items Ordered:</strong> ${newOrder.items.length} product(s)</div>
             <div><strong>Total Paid:</strong> <strong style="color:#19a463;font-size:16px;">₹${newOrder.total}</strong></div>
             <div style="margin-top:6px;color:#777;font-size:12px;">Order Placed on ${newOrder.orderDate}</div>
         `;
 
         window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+
+    // UPI Simulation Handler
+    window.simulateUPIPayment = function(isSuccess) {
+        const details = validateCustomerForm();
+        if (!details) return;
+
+        const upiId = document.getElementById("upiIdInput").value.trim() || "demo@grocerygo";
+        const statusBox = document.getElementById("upiStatusMessage");
+        const successBtn = document.getElementById("upiSuccessBtn");
+        const failBtn = document.getElementById("upiFailBtn");
+
+        statusBox.style.display = "block";
+        statusBox.style.background = "#eff6ff";
+        statusBox.style.color = "#1d4ed8";
+        statusBox.innerHTML = `⏳ Connecting to UPI Gateway (${upiId})... Simulating authorization...`;
+        successBtn.disabled = true;
+        failBtn.disabled = true;
+
+        setTimeout(() => {
+            if (isSuccess) {
+                const txnId = "TXN" + Date.now();
+                statusBox.style.background = "#dcfce7";
+                statusBox.style.color = "#15803d";
+                statusBox.innerHTML = `✅ Payment Approved! Ref: ${txnId}. Finalizing order...`;
+
+                setTimeout(() => {
+                    finalizeOrderCreation("UPI", "Paid", txnId);
+                }, 800);
+            } else {
+                statusBox.style.background = "#fee2e2";
+                statusBox.style.color = "#b91c1c";
+                statusBox.innerHTML = `❌ Payment Declined by Bank. Please retry or choose Cash on Delivery.`;
+                successBtn.disabled = false;
+                failBtn.disabled = false;
+            }
+        }, 1200);
+    };
+
+    // Checkout Form Submit
+    document.getElementById("checkoutForm").addEventListener("submit", function(e) {
+        e.preventDefault();
+        const selectedPayment = document.querySelector('input[name="payment"]:checked').value;
+
+        if (selectedPayment === "UPI") {
+            window.simulateUPIPayment(true);
+        } else {
+            finalizeOrderCreation("Cash on Delivery", "Pending", null);
+        }
     });
 
 })();

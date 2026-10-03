@@ -22,476 +22,344 @@
         </div>
 
         <!-- Location -->
-        <div class="location">
+        <div class="location" id="navLocationBtn" style="cursor:pointer;" title="Click to change delivery location">
             <span class="location-icon">📍</span>
-
             <div>
                 <small>Deliver to</small>
-                <strong>Vijayawada</strong>
+                <strong id="navLocationText">Vijayawada</strong>
             </div>
         </div>
 
         <!-- Search -->
         <div class="search-box">
-
             <span>🔍</span>
-
             <input
                 type="text"
                 id="searchInput"
                 placeholder="Search for groceries, fruits, vegetables..."
             >
-
         </div>
 
         <!-- Navigation -->
         <nav class="nav-links">
-
             <a href="#home">Home</a>
             <a href="#categories">Categories</a>
+            <a href="#featuredSection">Featured</a>
+            <a href="#dealsSection">Deals</a>
             <a href="#products">Products</a>
-
+            <a href="user/support.html">Support</a>
         </nav>
 
         <!-- User Actions -->
         <div class="nav-actions" id="navActions">
-
             <a href="login.html" class="login-link" id="navLogin">
                 👤 Login
             </a>
-
             <a href="register.html" class="register-link" id="navRegister">
                 Register
             </a>
-
             <a href="user/cart.html" class="cart-button">
                 🛒 Cart
                 <span id="cartCount">0</span>
             </a>
-
         </div>
-
     </header>
 
-
     <!-- ================= MAIN ================= -->
-
     <main>
 
         <!-- ================= HERO ================= -->
-
         <section class="hero" id="home">
-
             <div class="hero-content">
-
                 <div class="delivery-badge">
-                    ⚡ Fast & Fresh Delivery
+                    ⚡ Fast & Fresh Delivery in 15-30 Mins
                 </div>
-
                 <h1>
                     Groceries Delivered
                     <span>Fast & Fresh</span>
                 </h1>
-
                 <p>
-                    Your everyday groceries, fruits, vegetables,
-                    dairy and snacks delivered right to your doorstep.
+                    Your everyday groceries, farm-fresh fruits, vegetables,
+                    dairy and snacks delivered directly to your doorstep.
                 </p>
 
                 <div class="hero-buttons">
-
                     <a href="#products" class="primary-btn">
                         Shop Now →
                     </a>
-
                     <a href="#categories" class="secondary-btn">
                         Browse Categories
                     </a>
-
                 </div>
 
                 <div class="hero-features">
-
                     <div>
-                        <strong>⚡ Fast</strong>
-                        <small>Quick delivery</small>
+                        <strong>⚡ 15-30 Mins</strong>
+                        <small>Express doorstep delivery</small>
                     </div>
-
                     <div>
-                        <strong>🥬 Fresh</strong>
-                        <small>Quality products</small>
+                        <strong>🥬 100% Fresh</strong>
+                        <small>Handpicked quality items</small>
                     </div>
-
                     <div>
-                        <strong>💰 Affordable</strong>
-                        <small>Best prices</small>
+                        <strong>💰 Best Deals</strong>
+                        <small>Daily discounts & coupons</small>
                     </div>
-
                 </div>
-
             </div>
-
 
             <div class="hero-image">
-
                 <div class="hero-circle">
-
-                    <div class="large-cart">
-                        🛒
-                    </div>
-
-                    <div class="floating-item item-1">
-                        🍎
-                    </div>
-
-                    <div class="floating-item item-2">
-                        🥦
-                    </div>
-
-                    <div class="floating-item item-3">
-                        🥛
-                    </div>
-
-                    <div class="floating-item item-4">
-                        🍞
-                    </div>
-
+                    <div class="large-cart">🛒</div>
+                    <div class="floating-item item-1">🍎</div>
+                    <div class="floating-item item-2">🥦</div>
+                    <div class="floating-item item-3">🥛</div>
+                    <div class="floating-item item-4">🍞</div>
                 </div>
-
             </div>
-
         </section>
-
 
         <!-- ================= CATEGORIES ================= -->
-
         <section class="section" id="categories">
-
             <div class="section-header">
-
                 <div>
                     <small>SHOP BY CATEGORY</small>
-
                     <h2>What are you looking for?</h2>
                 </div>
-
                 <a href="#products" class="view-all">
-                    View All →
+                    View All Products →
                 </a>
-
             </div>
 
-
-            <div class="category-grid">
-
-                <div class="category-card"
-                     onclick="filterCategory('Fruits')">
-
-                    <div class="category-image">
-                        🍎
-                    </div>
-
-                    <h3>Fruits</h3>
-
-                    <p>Fresh & healthy</p>
-
-                </div>
-
-
-                <div class="category-card"
-                     onclick="filterCategory('Vegetables')">
-
-                    <div class="category-image">
-                        🥦
-                    </div>
-
-                    <h3>Vegetables</h3>
-
-                    <p>Farm fresh</p>
-
-                </div>
-
-
-                <div class="category-card"
-                     onclick="filterCategory('Dairy')">
-
-                    <div class="category-image">
-                        🥛
-                    </div>
-
-                    <h3>Dairy</h3>
-
-                    <p>Daily essentials</p>
-
-                </div>
-
-
-                <div class="category-card"
-                     onclick="filterCategory('Bakery')">
-
-                    <div class="category-image">
-                        🍞
-                    </div>
-
-                    <h3>Bakery</h3>
-
-                    <p>Freshly baked</p>
-
-                </div>
-
-
-                <div class="category-card"
-                     onclick="filterCategory('Snacks')">
-
-                    <div class="category-image">
-                        🍪
-                    </div>
-
-                    <h3>Snacks</h3>
-
-                    <p>Tasty treats</p>
-
-                </div>
-
-
-                <div class="category-card"
-                     onclick="filterCategory('Beverages')">
-
-                    <div class="category-image">
-                        🥤
-                    </div>
-
-                    <h3>Beverages</h3>
-
-                    <p>Cool & refreshing</p>
-
-                </div>
-
+            <div class="category-grid" id="categoryGrid">
+                <!-- Dynamically populated from GroceryStore.getCategories() -->
             </div>
-
         </section>
 
-
-        <!-- ================= OFFER BANNER ================= -->
-
+        <!-- ================= LIMITED OFFER BANNER ================= -->
         <section class="offer-banner">
-
             <div>
-
-                <small>LIMITED TIME OFFER</small>
-
+                <small>SPECIAL PROMO CODE</small>
                 <h2>
                     Get ₹100 OFF
-                    <span>on your first order</span>
+                    <span>on orders above ₹499</span>
                 </h2>
-
                 <p>
-                    Use coupon code:
+                    Apply coupon code at checkout:
                     <strong>GROCERY100</strong>
                 </p>
-
             </div>
-
-            <a href="#products" class="offer-btn">
-                Shop Offers →
+            <a href="#dealsSection" class="offer-btn">
+                Shop Deals →
             </a>
-
         </section>
 
-
-        <!-- ================= PRODUCTS ================= -->
-
-        <section class="section products-section" id="products">
-
+        <!-- ================= FEATURED PRODUCTS ================= -->
+        <section class="section" id="featuredSection" style="padding-top:20px;">
             <div class="section-header">
-
                 <div>
-
-                    <small>POPULAR PRODUCTS</small>
-
-                    <h2>Fresh picks for you</h2>
-
+                    <small>CURATED PICKS</small>
+                    <h2>⭐ Featured Products</h2>
                 </div>
+                <a href="#products" class="view-all">
+                    Explore All →
+                </a>
+            </div>
+            <div class="product-grid" id="featuredContainer">
+                <!-- JavaScript will populate featured products -->
+            </div>
+        </section>
 
+        <!-- ================= DEALS & DISCOUNTS ================= -->
+        <section class="section" id="dealsSection" style="background:#fffaf4;">
+            <div class="section-header">
+                <div>
+                    <small style="color:#d97706;">MEGA SAVINGS</small>
+                    <h2>🔥 Today's Best Deals & Offers</h2>
+                </div>
+                <span style="font-size:13px;color:#d97706;font-weight:700;">Up to 25% OFF</span>
+            </div>
+            <div class="product-grid" id="dealsContainer">
+                <!-- JavaScript will populate deals products -->
+            </div>
+        </section>
+
+        <!-- ================= ALL / POPULAR PRODUCTS ================= -->
+        <section class="section products-section" id="products">
+            <div class="section-header">
+                <div>
+                    <small>OUR CATALOG</small>
+                    <h2>Explore All Products</h2>
+                </div>
                 <button
                     class="clear-filter"
                     onclick="showAllProducts()">
-                    View All
+                    Reset Filters
                 </button>
-
             </div>
 
+            <!-- Dynamic Category Filter Pills -->
+            <div class="filter-pills-bar" id="categoryPillsBar">
+                <!-- Dynamically populated pills -->
+            </div>
 
             <!-- Product Grid -->
-
             <div
                 class="product-grid"
                 id="productContainer">
-
                 <!-- JavaScript will insert products -->
-
             </div>
-
 
             <p
                 id="noProducts"
                 class="no-products">
-                No products found.
+                No products found matching your selection.
             </p>
-
         </section>
 
+        <!-- ================= FRESH FRUITS & VEGETABLES ================= -->
+        <section class="section" id="freshSection">
+            <div class="section-header">
+                <div>
+                    <small>FARM FRESH</small>
+                    <h2>🥬 Fresh Fruits & Vegetables</h2>
+                </div>
+                <button class="clear-filter" onclick="filterCategory('Fruits')">
+                    View Fruits & Veggies →
+                </button>
+            </div>
+            <div class="product-grid" id="freshContainer">
+                <!-- Populated dynamically -->
+            </div>
+        </section>
+
+        <!-- ================= DAILY ESSENTIALS ================= -->
+        <section class="section" id="essentialsSection" style="background:#f4f7f4;">
+            <div class="section-header">
+                <div>
+                    <small>PANTRY & KITCHEN</small>
+                    <h2>🥛 Daily Essentials & Snacks</h2>
+                </div>
+                <button class="clear-filter" onclick="filterCategory('Dairy')">
+                    View Essentials →
+                </button>
+            </div>
+            <div class="product-grid" id="essentialsContainer">
+                <!-- Populated dynamically -->
+            </div>
+        </section>
 
         <!-- ================= BENEFITS ================= -->
-
         <section class="benefits-section">
-
             <div class="benefit">
-
-                <div class="benefit-icon">
-                    ⚡
-                </div>
-
+                <div class="benefit-icon">⚡</div>
                 <div>
-                    <h3>Fast Delivery</h3>
-                    <p>Get your groceries quickly.</p>
+                    <h3>Lightning Fast Delivery</h3>
+                    <p>Orders delivered in 15-30 minutes.</p>
                 </div>
-
             </div>
 
-
             <div class="benefit">
-
-                <div class="benefit-icon">
-                    🥬
-                </div>
-
+                <div class="benefit-icon">🥬</div>
                 <div>
-                    <h3>Fresh Products</h3>
-                    <p>Quality products every time.</p>
+                    <h3>100% Quality Assured</h3>
+                    <p>Directly sourced from trusted suppliers.</p>
                 </div>
-
             </div>
 
-
             <div class="benefit">
-
-                <div class="benefit-icon">
-                    💳
-                </div>
-
+                <div class="benefit-icon">💳</div>
                 <div>
-                    <h3>Easy Checkout</h3>
-                    <p>Simple and convenient ordering.</p>
+                    <h3>Seamless Checkout</h3>
+                    <p>Cash on Delivery & Instant Demo UPI.</p>
                 </div>
-
             </div>
 
-
             <div class="benefit">
-
-                <div class="benefit-icon">
-                    🔒
-                </div>
-
+                <div class="benefit-icon">🔒</div>
                 <div>
-                    <h3>Secure Account</h3>
-                    <p>Your account stays protected.</p>
+                    <h3>Protected & Safe</h3>
+                    <p>Hygienic handling and live order tracking.</p>
                 </div>
-
             </div>
-
         </section>
 
+        <!-- ================= SUPPORT PROMO ================= -->
+        <section class="section" style="background:white;padding:32px 7%;border-top:1px solid #eef2ee;border-bottom:1px solid #eef2ee;">
+            <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:20px;">
+                <div>
+                    <h3 style="font-size:22px;color:#1a2a1e;margin-bottom:6px;">Need Assistance with an Order or Delivery?</h3>
+                    <p style="color:#666;font-size:14px;">Our 24/7 dedicated Help & Support desk is here to resolve your questions and issues.</p>
+                </div>
+                <a href="user/support.html" class="primary-btn" style="text-decoration:none;">
+                    🎧 Open Help & Support Desk →
+                </a>
+            </div>
+        </section>
 
         <!-- ================= CTA ================= -->
-
         <section class="cta">
-
             <div>
-
                 <h2>
                     Everything you need,
                     just a few clicks away.
                 </h2>
-
                 <p>
                     Create your GroceryGo account
-                    and start shopping.
+                    and start shopping today.
                 </p>
-
             </div>
-
             <a href="register.html" class="primary-btn">
                 Get Started →
             </a>
-
         </section>
 
     </main>
 
-
     <!-- ================= FOOTER ================= -->
-
     <footer class="footer">
-
         <div class="footer-grid">
-
             <div>
-
                 <div class="footer-logo">
                     🛒 GroceryGo
                 </div>
-
                 <p>
-                    Your everyday grocery shopping
-                    made simple and convenient.
+                    Your everyday online grocery shopping
+                    and express delivery partner.
                 </p>
-
             </div>
 
-
             <div>
-
                 <h3>Quick Links</h3>
-
                 <a href="#home">Home</a>
                 <a href="#categories">Categories</a>
-                <a href="#products">Products</a>
-
+                <a href="#featuredSection">Featured Products</a>
+                <a href="#dealsSection">Deals & Offers</a>
+                <a href="#products">All Groceries</a>
             </div>
 
-
             <div>
-
-                <h3>Account</h3>
-
+                <h3>Customer Service</h3>
+                <a href="user/support.html">Help & Support Desk</a>
+                <a href="user/orders.html">Track My Order</a>
+                <a href="user/cart.html">View Cart</a>
                 <a href="login.html">Login</a>
                 <a href="register.html">Register</a>
-
             </div>
-
 
             <div>
-
-                <h3>Contact</h3>
-
-                <p>support@grocerygo.com</p>
-                <p>+91 98765 43210</p>
-
+                <h3>Contact & Location</h3>
+                <p>📍 Vijayawada, Andhra Pradesh</p>
+                <p>📧 support@grocerygo.com</p>
+                <p>📞 +91 98765 43210</p>
             </div>
-
         </div>
-
 
         <div class="footer-bottom">
-
             <p>
-                © 2026 GroceryGo. All Rights Reserved.
+                © 2026 GroceryGo. All Rights Reserved. Online Grocery Shopping & Delivery Management System.
             </p>
-
         </div>
-
     </footer>
 
 

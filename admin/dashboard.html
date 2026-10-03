@@ -29,6 +29,8 @@
             <a href="users.html" class="admin-nav-item">👥 Users</a>
             <a href="offers.html" class="admin-nav-item">🏷️ Offers</a>
             <a href="reports.html" class="admin-nav-item">📈 Reports</a>
+            <a href="support.html" class="admin-nav-item">🎧 Support</a>
+            <a href="reviews.html" class="admin-nav-item">⭐ Reviews</a>
         </nav>
 
         <div class="admin-nav-actions">
@@ -153,6 +155,76 @@
         </div>
     </div>
 
+    <!-- CUSTOMER EXPERIENCE & SUPPORT ANALYTICS (Section 10) -->
+    <div class="admin-card" style="background:#fafdfb;border:1.5px solid #d4ebd9;">
+        <div class="card-title-bar" style="border-bottom:1px solid #e1efe4;">
+            <div>
+                <h2 style="color:#148550;">🎧 Customer Experience & Service Analytics</h2>
+                <small style="color:#666;">Aggregated satisfaction ratings, sentiment insights, and support resolution speed</small>
+            </div>
+            <div style="display:flex;gap:10px;">
+                <a href="support.html" class="header-action-btn" style="background:#19a463;font-size:12px;padding:6px 12px;">Support Desk →</a>
+                <a href="reviews.html" class="header-action-btn" style="background:#2c3e32;font-size:12px;padding:6px 12px;">Review Moderation →</a>
+            </div>
+        </div>
+
+        <div class="stats-grid" style="margin-top:16px;margin-bottom:0;">
+            <div class="stat-card">
+                <div class="stat-top">
+                    <div class="stat-icon icon-amber">⭐</div>
+                    <span class="pill pill-amber">Product Quality</span>
+                </div>
+                <div class="stat-val" id="csAvgItemRating">5.0 / 5</div>
+                <div class="stat-label">Avg Item Quality Rating</div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-top">
+                    <div class="stat-icon icon-green">🛵</div>
+                    <span class="pill pill-green">Delivery Service</span>
+                </div>
+                <div class="stat-val" id="csAvgDeliveryRating">4.9 / 5</div>
+                <div class="stat-label">Avg Delivery Speed & Conduct</div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-top">
+                    <div class="stat-icon icon-blue">📋</div>
+                    <span class="pill pill-blue">Open Tickets</span>
+                </div>
+                <div class="stat-val" id="csOpenTickets">0</div>
+                <div class="stat-label">Tickets Awaiting Resolution</div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-top">
+                    <div class="stat-icon icon-green">✅</div>
+                    <span class="pill pill-green">Resolved</span>
+                </div>
+                <div class="stat-val" id="csResolvedTickets">0</div>
+                <div class="stat-label">Resolved Support Cases</div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-top">
+                    <div class="stat-icon icon-red">⚠️</div>
+                    <span class="pill pill-red">Top Concern</span>
+                </div>
+                <div class="stat-val" id="csTopIssue" style="font-size:15px;line-height:1.2;font-weight:700;">Packaging</div>
+                <div class="stat-label">Most Reported Issue Category</div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-top">
+                    <div class="stat-icon icon-purple">🍎</div>
+                    <span class="pill pill-purple">Popular Pick</span>
+                </div>
+                <div class="stat-val" id="csTopProduct" style="font-size:15px;line-height:1.2;font-weight:700;">Organic Apples</div>
+                <div class="stat-label">Most Reviewed Product</div>
+            </div>
+        </div>
+    </div>
+
     <!-- RECENT ORDERS SECTION -->
     <div class="admin-card">
         <div class="card-title-bar">
@@ -274,6 +346,17 @@
     document.getElementById("statAvailableRiders").textContent = availableRiders.length;
     document.getElementById("statActiveDeliveries").textContent = activeDeliveries.length;
     document.getElementById("statTotalUsers").textContent = users.length;
+
+    // Customer Service Analytics (Section 10)
+    if (window.GroceryStore.getCustomerServiceAnalytics) {
+        const cs = window.GroceryStore.getCustomerServiceAnalytics();
+        document.getElementById("csAvgItemRating").textContent = `${cs.avgItemRating} / 5 ⭐`;
+        document.getElementById("csAvgDeliveryRating").textContent = `${cs.avgDeliveryRating} / 5 ⭐`;
+        document.getElementById("csOpenTickets").textContent = cs.openTickets;
+        document.getElementById("csResolvedTickets").textContent = cs.resolvedTickets;
+        document.getElementById("csTopIssue").textContent = cs.mostReportedIssue;
+        document.getElementById("csTopProduct").textContent = cs.mostReviewedProduct;
+    }
 
     // Helper for pill classes
     function getPill(status) {
